@@ -3,7 +3,6 @@ package proto;
 option go_package = "github.com/bdreece/hopper/pkg/proto";
 
 import "google/protobuf/timestamp.proto";
-import "error.proto";
 
 message Device {
   uint32 id = 1;
@@ -18,28 +17,19 @@ message Device {
   uint32 model_id = 9;
 }
 
-message DeviceResponse {
-  oneof result {
-    Device device = 1;
-    Error error = 2;
-  }
-}
-
 message AuthDeviceRequest {
   string uuid = 1;
   string api_key = 2;
 }
 
 message AuthDeviceResponse {
-  message AccessToken {
-    string access_token = 1;
+  message Token {
+    string token = 1;
     google.protobuf.Timestamp expiration = 2;
   }
 
-  oneof result {
-    AccessToken token = 1;
-    Error error = 2;
-  }
+  Token access_token = 1;
+  Token refresh_token = 2;
 }
 
 message GetDeviceRequest {

@@ -4,7 +4,6 @@ option go_package = "github.com/bdreece/hopper/pkg/proto";
 
 import "google/protobuf/timestamp.proto";
 import "device.proto";
-import "error.proto";
 import "model.proto";
 
 message Property {
@@ -19,21 +18,7 @@ message Property {
   uint32 type_id = 7;
 }
 
-message PropertyResponse {
-  oneof result {
-    Property property = 1;
-    Error error = 2;
-  }
-}
-
-message PropertiesResponse {
-  message Properties { repeated Property properties = 1; }
-
-  oneof result {
-    Properties properties = 1;
-    Error error = 2;
-  }
-}
+message Properties { repeated Property properties = 1; }
 
 message CreatePropertyRequest {
   string name = 1;

@@ -4,7 +4,6 @@ option go_package = "github.com/bdreece/hopper/pkg/proto";
 
 import "google/protobuf/timestamp.proto";
 import "device.proto";
-import "error.proto";
 
 message Tenant {
   uint32 id = 1;
@@ -14,13 +13,6 @@ message Tenant {
   string uuid = 4;
   string name = 5;
   optional string description = 6;
-}
-
-message TenantResponse {
-  oneof result {
-    Tenant tenant = 1;
-    Error error = 2;
-  }
 }
 
 message GetTenantRequest {

@@ -3,7 +3,6 @@ package proto;
 option go_package = "github.com/bdreece/hopper/pkg/proto";
 
 import "google/protobuf/timestamp.proto";
-import "error.proto";
 import "model.proto";
 
 message Firmware {
@@ -17,13 +16,6 @@ message Firmware {
   string url = 7;
 
   uint32 model_id = 8;
-}
-
-message FirmwareResponse {
-  oneof result {
-    Firmware firmware = 1;
-    Error error = 2;
-  }
 }
 
 message GetFirmwareRequest {

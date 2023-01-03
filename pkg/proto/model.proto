@@ -4,7 +4,6 @@ option go_package = "github.com/bdreece/hopper/pkg/proto";
 
 import "google/protobuf/timestamp.proto";
 import "device.proto";
-import "error.proto";
 import "tenant.proto";
 
 message Model {
@@ -19,21 +18,7 @@ message Model {
   uint32 tenant_id = 7;
 }
 
-message ModelResponse {
-  oneof result {
-    Model model = 1;
-    Error error = 2;
-  }
-}
-
-message ModelsResponse {
-  message Models { repeated Model models = 1; }
-
-  oneof result {
-    Models models = 1;
-    Error error = 2;
-  }
-}
+message Models { repeated Model models = 1; }
 
 message GetModelRequest {
   oneof where {

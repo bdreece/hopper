@@ -3,7 +3,6 @@ package proto;
 option go_package = "github.com/bdreece/hopper/pkg/proto";
 
 import "google/protobuf/timestamp.proto";
-import "error.proto";
 import "property.proto";
 import "tenant.proto";
 import "type.proto";
@@ -18,21 +17,7 @@ message Unit {
   string symbol = 6;
 }
 
-message UnitResponse {
-  oneof result {
-    Unit unit = 1;
-    Error error = 2;
-  }
-}
-
-message UnitsResponse {
-  message Units { repeated Unit units = 1; }
-
-  oneof result {
-    Units units = 1;
-    Error error = 2;
-  }
-}
+message Units { repeated Unit units = 1; }
 
 message GetUnitRequest {
   oneof where {

@@ -13,44 +13,42 @@ import "unit.proto";
 
 service DeviceService {
   rpc AuthDevice(AuthDeviceRequest) returns (AuthDeviceResponse);
-  rpc GetDevice(GetDeviceRequest) returns (DeviceResponse);
-  rpc UpdateDevice(UpdateDeviceRequest) returns (DeviceResponse);
-  rpc DeleteDevice(DeleteDeviceRequest) returns (DeviceResponse);
+  rpc GetDevice(GetDeviceRequest) returns (Device);
+  rpc UpdateDevice(UpdateDeviceRequest) returns (Device);
+  rpc DeleteDevice(DeleteDeviceRequest) returns (Device);
 }
 
 service EventService {
-  rpc CreateEvents(CreateEventsRequest) returns (EventsResponse);
-  rpc GetEvent(GetEventRequest) returns (EventResponse);
-  rpc GetEvents(GetEventsRequest) returns (EventsResponse);
+  rpc CreateEvents(CreateEventsRequest) returns (Events);
+  rpc GetEvent(GetEventRequest) returns (Event);
+  rpc GetEvents(GetEventsRequest) returns (Events);
 }
 
 service FirmwareService {
-  rpc GetFirmware(GetFirmwareRequest) returns (FirmwareResponse);
+  rpc GetFirmware(GetFirmwareRequest) returns (Firmware);
 }
 
 service ModelService {
-  rpc GetModel(GetModelRequest) returns (ModelResponse);
-  rpc GetModels(GetModelsRequest) returns (ModelsResponse);
+  rpc GetModel(GetModelRequest) returns (Model);
+  rpc GetModels(GetModelsRequest) returns (Models);
 }
 
 service PropertyService {
-  rpc CreateProperty(CreatePropertyRequest) returns (PropertyResponse);
-  rpc GetProperty(GetPropertyRequest) returns (PropertyResponse);
-  rpc GetProperties(GetPropertiesRequest) returns (PropertiesResponse);
-  rpc UpdateProperty(UpdatePropertyRequest) returns (PropertyResponse);
-  rpc DeleteProperty(DeletePropertyRequest) returns (PropertyResponse);
+  rpc CreateProperty(CreatePropertyRequest) returns (Property);
+  rpc GetProperty(GetPropertyRequest) returns (Property);
+  rpc GetProperties(GetPropertiesRequest) returns (Properties);
+  rpc UpdateProperty(UpdatePropertyRequest) returns (Property);
+  rpc DeleteProperty(DeletePropertyRequest) returns (Property);
 }
 
-service TenantService {
-  rpc GetTenant(GetTenantRequest) returns (TenantResponse);
-}
+service TenantService { rpc GetTenant(GetTenantRequest) returns (Tenant); }
 
 service TypeService {
-  rpc GetType(GetTypeRequest) returns (TypeResponse);
-  rpc GetTypes(GetTypesRequest) returns (TypesResponse);
+  rpc GetType(GetTypeRequest) returns (Type);
+  rpc GetTypes(GetTypesRequest) returns (Types);
 }
 
 service UnitService {
-  rpc GetUnit(GetUnitRequest) returns (UnitResponse);
-  rpc GetUnits(GetUnitRequest) returns (UnitsResponse);
+  rpc GetUnit(GetUnitRequest) returns (Unit);
+  rpc GetUnits(GetUnitRequest) returns (Units);
 }

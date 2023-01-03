@@ -4,7 +4,6 @@ option go_package = "github.com/bdreece/hopper/pkg/proto";
 
 import "google/protobuf/timestamp.proto";
 import "device.proto";
-import "error.proto";
 
 message Event {
   uint32 id = 1;
@@ -15,21 +14,7 @@ message Event {
   string value = 6;
 }
 
-message EventResponse {
-  oneof result {
-    Event event = 1;
-    Error error = 2;
-  }
-}
-
-message EventsResponse {
-  message Events { repeated Event events = 1; }
-
-  oneof result {
-    Events events = 1;
-    Error error = 2;
-  }
-}
+message Events { repeated Event events = 1; }
 
 message CreateEventInput {
   uint32 property_id = 1;

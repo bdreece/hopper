@@ -3,7 +3,6 @@ package proto;
 option go_package = "github.com/bdreece/hopper/pkg/proto";
 
 import "google/protobuf/timestamp.proto";
-import "error.proto";
 import "property.proto";
 import "tenant.proto";
 
@@ -19,21 +18,7 @@ message Type {
   uint32 unit_id = 7;
 }
 
-message TypeResponse {
-  oneof result {
-    Type type = 1;
-    Error error = 2;
-  }
-}
-
-message TypesResponse {
-  message Types { repeated Type types = 1; }
-
-  oneof result {
-    Types types = 1;
-    Error error = 2;
-  }
-}
+message Types { repeated Type types = 1; }
 
 message GetTypeRequest {
   oneof where {
