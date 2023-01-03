@@ -2,7 +2,6 @@ package models
 
 import (
 	pb "github.com/bdreece/hopper/pkg/proto"
-	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -36,8 +35,8 @@ func (d *Device) Update(input *pb.UpdateDeviceRequest) {
 	}
 }
 
-func (d Device) Marshal() (bytes []byte, err error) {
-	msg := &pb.Device{
+func (d Device) Marshal() (msg *pb.Device) {
+	msg = &pb.Device{
 		Id:          uint32(d.ID),
 		CreatedAt:   timestamppb.New(d.CreatedAt),
 		UpdatedAt:   timestamppb.New(d.UpdatedAt),
@@ -48,6 +47,5 @@ func (d Device) Marshal() (bytes []byte, err error) {
 		ModelId:     uint32(d.ModelID),
 		FirmwareId:  uint32(d.FirmwareID),
 	}
-	bytes, err = proto.Marshal(msg)
 	return
 }
