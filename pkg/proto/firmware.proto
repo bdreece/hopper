@@ -1,0 +1,42 @@
+syntax = "proto3";
+package proto;
+option go_package = "github.com/bdreece/hopper/models/proto";
+
+import "error.proto";
+import "model.proto";
+
+message Firmware {
+  uint32 id = 1;
+  string uuid = 2;
+  uint32 version_major = 3;
+  uint32 version_minor = 4;
+  uint32 version_patch = 5;
+  string url = 6;
+  uint32 model_id = 7;
+}
+
+message FirmwareResponse {
+  oneof result {
+    Firmware firmware = 1;
+    Error error = 2;
+  }
+}
+
+message GetFirmwareRequest {
+  message GetFirmwareByVersion {
+    uint32 version_major = 1;
+    uint32 version_minor = 2;
+    uint32 version_patch = 3;
+  }
+
+  oneof where {
+    uint32 id = 1;
+    string uuid = 2;
+    GetModelRequest model = 3;
+    GetFirmwareByVersion version = 4;
+  }
+}
+
+service FirmwareService {
+  rpc GetFirmware(GetFirmwareRequest) returns FirmwareResponse
+}

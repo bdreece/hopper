@@ -1,0 +1,62 @@
+syntax = "proto3";
+package proto;
+option go_package = "github.com/bdreece/hopper/models/proto";
+
+import "error.proto";
+
+message AuthDeviceRequest {
+  string uuid = 1;
+  string api_key = 2;
+}
+
+message AuthDeviceResponse {
+  message AccessToken {
+    string access_token = 1;
+    string expiration = 2;
+  }
+
+  oneof result {
+    AccessToken token = 1;
+    Error error = 2;
+  }
+}
+
+message Device {
+  uint32 id = 1;
+  string uuid = 2;
+  string name = 3;
+  optional string description = 4;
+  uint32 firmware_id = 5;
+  uint32 model_id = 6;
+}
+
+message DeviceResponse {
+  oneof result {
+    Device device = 1;
+    Error error = 2;
+  }
+}
+
+message GetDeviceRequest {
+  oneof where {
+    uint32 id = 1;
+    string uuid = 2;
+  }
+}
+
+message UpdateDeviceRequest {
+  oneof where {
+    uint32 id = 1;
+    string uuid = 2;
+  }
+  optional string name = 3;
+  optional string description = 4;
+  optional uint32 firmware_id = 5;
+  optional uint32 model_id = 6;
+}
+
+service DeviceService {
+  rpc AuthDevice(AuthDeviceRequest) returns AuthDeviceResponse;
+  rpc GetDevice(GetDeviceRequest) returns DeviceResponse;
+  rpc UpdateDevice(UpdateDeviceRequest) returns DeviceResponse;
+}

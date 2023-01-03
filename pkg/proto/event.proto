@@ -1,0 +1,51 @@
+syntax = "proto3";
+package proto;
+option go_package = "github.com/bdreece/hopper/models/proto";
+
+import "device.proto";
+import "error.proto";
+
+message Event {
+  uint32 id = 1;
+  uint32 device_id = 2;
+  uint32 property_id = 3;
+  string value = 4;
+}
+
+message EventResponse {
+  oneof result {
+    Event event = 1;
+    Error error = 2;
+  }
+}
+
+message EventsResponse {
+  message Events { repeated Event events = 1; }
+
+  oneof result {
+    Events events = 1;
+    Error error = 2;
+  }
+}
+
+message CreateEventInput {
+  uint32 property_id = 1;
+  string value = 2;
+}
+
+message CreateEventRequest {
+  uint32 device_id = 1;
+  repeated CreateEventInput events = 2;
+}
+
+message GetEventRequest { uint32 id = 1; }
+
+message GetEventsRequest {
+  oneof where { GetDeviceRequest device = 1; }
+}
+
+service EventService {
+  rpc CreateEvent(CreateEventRequest) returns EventsResponse;
+  rpc GetEvent(GetEventRequest) returns EventResponse;
+  rpc GetEvents(GetEventsRequest) returns EventsResponse;
+}

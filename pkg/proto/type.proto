@@ -1,0 +1,42 @@
+syntax = "proto3";
+package proto;
+option go_package = "github.com/bdreece/hopper/models/proto";
+
+import "error.proto";
+import "property.proto";
+
+message Type {
+  uint32 id = 1;
+  string name = 2;
+  optional string description = 3;
+  string data_type = 4;
+  uint32 unit_id = 5;
+}
+
+message TypeResponse {
+  oneof result {
+    Type type = 1;
+    Error error = 2;
+  }
+}
+
+message TypesResponse {
+  message Types { repeated Type types = 1; }
+
+  oneof result {
+    Types types = 1;
+    Error error = 2;
+  }
+}
+
+message GetTypeRequest {
+  oneof where {
+    uint32 id = 1;
+    GetPropertyRequest property = 2;
+  }
+}
+
+service TypeService {
+  rpc GetType(GetTypeRequest) returns TypeResponse;
+  rpc GetTypes() returns TypesResponse
+}

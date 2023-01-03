@@ -1,0 +1,43 @@
+syntax = "proto3";
+package proto;
+option go_package = "github.com/bdreece/hopper/models/proto";
+
+import "error.proto";
+import "property.proto";
+import "type.proto";
+
+message Unit {
+  uint32 id = 1;
+  string name = 2;
+  optional string description = 3;
+  string symbol = 4;
+}
+
+message UnitResponse {
+  oneof result {
+    Unit unit = 1;
+    Error error = 2;
+  }
+}
+
+message UnitsResponse {
+  message Units { repeated Unit units = 1; }
+
+  oneof result {
+    Units units = 1;
+    Error error = 2;
+  }
+}
+
+message GetUnitRequest {
+  oneof where {
+    uint32 id = 1;
+    GetTypeRequest type = 2;
+    GetPropertyRequest property = 3;
+  }
+}
+
+service UnitService {
+  rpc GetUnit(GetUnitRequest) returns UnitResponse;
+  rpc GetUnits() returns UnitsResponse
+}

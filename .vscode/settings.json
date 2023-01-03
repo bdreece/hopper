@@ -1,0 +1,6 @@
+{
+  "protoc": {
+    "path": "/usr/bin/protoc",
+    "options": ["-IPATH /home/bdreece/Code/github/hopper/models/messages"]
+  }
+}
