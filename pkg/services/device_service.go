@@ -67,9 +67,13 @@ func (s *DeviceService) AuthDevice(ctx context.Context, input *pb.AuthDeviceRequ
 	now := time.Now()
 	accessTokenExpiration := now.Add(2 * time.Hour)
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(accessTokenExpiration),
 		Issuer:    ISSUER,
 		Subject:   fmt.Sprint(device.Entity.ID),
+		Audience:  jwt.ClaimStrings{fmt.Sprint(device.TenantID)},
+		ExpiresAt: jwt.NewNumericDate(accessTokenExpiration),
+		NotBefore: jwt.NewNumericDate(now),
+		IssuedAt:  jwt.NewNumericDate(now),
+		ID:        uuid.New().String(),
 	})
 
 	accessJwt, err := accessToken.SignedString([]byte(s.secret))
