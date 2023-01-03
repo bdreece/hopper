@@ -1,16 +1,22 @@
 syntax = "proto3";
 package proto;
-option go_package = "github.com/bdreece/hopper/models/proto";
+option go_package = "github.com/bdreece/hopper/pkg/proto";
 
+import "google/protobuf/timestamp.proto";
 import "device.proto";
 import "error.proto";
-import "firmware.proto";
+import "tenant.proto";
 
 message Model {
   uint32 id = 1;
-  string uuid = 1;
-  string name = 2;
-  optional string description = 3;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+
+  string uuid = 4;
+  string name = 5;
+  optional string description = 6;
+
+  uint32 tenant_id = 7;
 }
 
 message ModelResponse {
@@ -20,12 +26,22 @@ message ModelResponse {
   }
 }
 
+message ModelsResponse {
+  message Models { repeated Model models = 1; }
+
+  oneof result {
+    Models models = 1;
+    Error error = 2;
+  }
+}
+
 message GetModelRequest {
   oneof where {
     string uuid = 1;
     GetDeviceRequest device = 2;
-    GetFirmwareRequest firmware = 3;
   }
 }
 
-service ModelService { rpc GetModel(GetModelRequest) returns ModelResponse; }
+message GetModelsRequest {
+  oneof where { GetTenantRequest tenant = 1; }
+}

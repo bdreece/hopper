@@ -1,0 +1,28 @@
+syntax = "proto3";
+package proto;
+option go_package = "github.com/bdreece/hopper/pkg/proto";
+
+import "google/protobuf/timestamp.proto";
+import "device.proto";
+import "error.proto";
+
+message Tenant {
+  uint32 id = 1;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+
+  string uuid = 4;
+  string name = 5;
+  optional string description = 6;
+}
+
+message TenantResponse {
+  oneof result {
+    Tenant tenant = 1;
+    Error error = 2;
+  }
+}
+
+message GetTenantRequest {
+  oneof where { GetDeviceRequest device = 1; }
+}

@@ -7,24 +7,24 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type Type struct {
+type Tenant struct {
 	NamedEntity
 
-	DataType string
-	UnitID   uint
+	Uuid string
+	Hash string
+	Salt string
 
-	Properties []Property
+	Devices []Device
 }
 
-func (t Type) Marshal() (bytes []byte, err error) {
-	msg := &pb.Type{
+func (t Tenant) Marshal() (bytes []byte, err error) {
+	msg := &pb.Tenant{
 		Id:          uint32(t.ID),
 		CreatedAt:   timestamppb.New(t.CreatedAt),
 		UpdatedAt:   timestamppb.New(t.UpdatedAt),
 		Name:        t.Name,
 		Description: t.Description,
-		DataType:    t.DataType,
-		UnitId:      uint32(t.UnitID),
+		Uuid:        t.Uuid,
 	}
 
 	bytes, err = proto.Marshal(msg)

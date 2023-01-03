@@ -1,6 +1,6 @@
 syntax = "proto3";
 package proto;
-option go_package = "github.com/bdreece/hopper/models/proto";
+option go_package = "github.com/bdreece/hopper/pkg/proto";
 
 message Error {
   uint32 code = 1;

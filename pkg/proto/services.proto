@@ -1,0 +1,56 @@
+syntax = "proto3";
+package proto;
+option go_package = "github.com/bdreece/hopper/pkg/proto";
+
+import "device.proto";
+import "event.proto";
+import "firmware.proto";
+import "model.proto";
+import "property.proto";
+import "tenant.proto";
+import "type.proto";
+import "unit.proto";
+
+service DeviceService {
+  rpc AuthDevice(AuthDeviceRequest) returns (AuthDeviceResponse);
+  rpc GetDevice(GetDeviceRequest) returns (DeviceResponse);
+  rpc UpdateDevice(UpdateDeviceRequest) returns (DeviceResponse);
+  rpc DeleteDevice(DeleteDeviceRequest) returns (DeviceResponse);
+}
+
+service EventService {
+  rpc CreateEvents(CreateEventsRequest) returns (EventsResponse);
+  rpc GetEvent(GetEventRequest) returns (EventResponse);
+  rpc GetEvents(GetEventsRequest) returns (EventsResponse);
+}
+
+service FirmwareService {
+  rpc GetFirmware(GetFirmwareRequest) returns (FirmwareResponse);
+}
+
+service ModelService {
+  rpc GetModel(GetModelRequest) returns (ModelResponse);
+  rpc GetModels(GetModelsRequest) returns (ModelsResponse);
+}
+
+service PropertyService {
+  rpc CreateProperty(CreatePropertyRequest) returns (PropertyResponse);
+  rpc GetProperty(GetPropertyRequest) returns (PropertyResponse);
+  rpc GetProperties(GetPropertiesRequest) returns (PropertiesResponse);
+  rpc UpdateProperty(UpdatePropertyRequest) returns (PropertyResponse);
+  rpc DeleteProperty(DeletePropertyRequest) returns (PropertyResponse);
+}
+
+service TenantService {
+  rpc GetTenant(GetTenantRequest) returns (TenantResponse);
+}
+
+service TypeService {
+  rpc GetType(GetTypeRequest) returns (TypeResponse);
+  rpc GetTypes(GetTypesRequest) returns (TypesResponse);
+}
+
+service UnitService {
+  rpc GetUnit(GetUnitRequest) returns (UnitResponse);
+  rpc GetUnits(GetUnitRequest) returns (UnitsResponse);
+}

@@ -1,16 +1,22 @@
 syntax = "proto3";
 package proto;
-option go_package = "github.com/bdreece/hopper/models/proto";
+option go_package = "github.com/bdreece/hopper/pkg/proto";
 
+import "google/protobuf/timestamp.proto";
 import "error.proto";
 import "property.proto";
+import "tenant.proto";
 
 message Type {
   uint32 id = 1;
-  string name = 2;
-  optional string description = 3;
-  string data_type = 4;
-  uint32 unit_id = 5;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+
+  string name = 4;
+  optional string description = 5;
+  string data_type = 6;
+
+  uint32 unit_id = 7;
 }
 
 message TypeResponse {
@@ -36,7 +42,6 @@ message GetTypeRequest {
   }
 }
 
-service TypeService {
-  rpc GetType(GetTypeRequest) returns TypeResponse;
-  rpc GetTypes() returns TypesResponse
+message GetTypesRequest {
+  oneof where { GetTenantRequest tenant = 1; }
 }
