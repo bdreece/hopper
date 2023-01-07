@@ -12,5 +12,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	a.Serve()
+	err = a.Serve()
+	if err != nil {
+		log.Fatal(err)
+	}
 }

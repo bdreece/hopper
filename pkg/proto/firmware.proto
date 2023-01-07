@@ -2,6 +2,8 @@ syntax = "proto3";
 package proto;
 option go_package = "github.com/bdreece/hopper/pkg/proto";
 
+import "deviceModel.proto";
+
 message Firmware {
   string uuid = 1;
   uint32 version_major = 2;
@@ -17,7 +19,7 @@ message GetFirmwareRequest {
     uint32 version_major = 1;
     uint32 version_minor = 2;
     uint32 version_patch = 3;
-    uint32 model_id = 4;
+    GetDeviceModelRequest model = 4;
   }
 
   oneof where {

@@ -28,7 +28,7 @@ message CreateEventsRequest { repeated CreateEventRequest events = 1; }
 message GetEventRequest {
   message GetEventByDeviceTimestamp {
     google.protobuf.Timestamp timestamp = 1;
-    uint32 device_id = 2;
+    GetDeviceRequest device = 2;
   }
 
   oneof where {

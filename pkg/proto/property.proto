@@ -12,6 +12,8 @@ message Property {
   optional string present_value = 4;
 
   uint32 type_id = 5;
+  optional uint32 model_id = 6;
+  optional uint32 device_id = 7;
 }
 
 message Properties { repeated Property properties = 1; }
@@ -38,4 +40,4 @@ message UpdatePropertyRequest {
   optional uint32 type_id = 4;
 }
 
-message DeletePropertyRequest { string uuid = 1; }
+message DeletePropertyRequest { GetPropertyRequest where = 1; }

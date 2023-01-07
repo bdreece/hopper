@@ -3,18 +3,23 @@ package services
 import (
 	"context"
 	"errors"
-	"log"
 
 	"github.com/bdreece/hopper/pkg/config"
 	"github.com/bdreece/hopper/pkg/models"
 	"github.com/bdreece/hopper/pkg/proto"
 	"github.com/bdreece/hopper/pkg/proto/grpc"
+	"github.com/bdreece/hopper/pkg/services/utils"
 	"gorm.io/gorm"
+)
+
+var (
+	ErrFirmwareNotFound = errors.New("Firmware not found")
+	ErrFirmwareQuery    = errors.New("Failed to query firmwares")
 )
 
 type FirmwareService struct {
 	db     *gorm.DB
-	logger *log.Logger
+	logger utils.Logger
 	grpc.UnimplementedFirmwareServiceServer
 }
 
@@ -27,27 +32,54 @@ func NewFirmwareService(cfg *config.Config) *FirmwareService {
 }
 
 func (s *FirmwareService) GetFirmware(ctx context.Context, in *proto.GetFirmwareRequest) (*proto.Firmware, error) {
-	var result *gorm.DB = nil
-	firmware := models.Firmware{}
+	s.logger.Infoln("Querying firmware...")
 
-	switch t := in.GetWhere().(type) {
+	query := s.db
+	switch t := in.Where.(type) {
 	case *proto.GetFirmwareRequest_Uuid:
-		result = s.db.
-			Where("uuid = ?", t.Uuid).
-			First(&firmware)
+		s.logger.Infoln("...by UUID")
+		query = query.Where("uuid = ?", t.Uuid)
+
 	case *proto.GetFirmwareRequest_Version:
-		result = s.db.
-			Where("modelId = ? AND versionMajor = ? AND versionMinor = ? AND versionPatch = ?",
-				t.Version.ModelId, t.Version.VersionMajor,
-				t.Version.VersionMinor, t.Version.VersionPatch).
-			First(&firmware)
+		s.logger.Infoln("...by device model")
+		query = query.Joins("inner join deviceModel on firmware.modelId = deviceModel.Id")
+
+		switch u := t.Version.Model.Where.(type) {
+		case *proto.GetDeviceModelRequest_Uuid:
+			s.logger.Infoln("...with UUID")
+			query = query.Where("deviceModel.uuid = ?", u.Uuid)
+
+		case *proto.GetDeviceModelRequest_Device:
+			s.logger.Infoln("...by device with UUID")
+			query = query.
+				Joins("inner join device on device.modelId = deviceModel.Id").
+				Where("device.uuid = ?", u.Device.Uuid)
+		}
+
+		s.logger.Infoln("...with version")
+		query = query.Where("versionMajor = ? AND versionMinor = ? AND versionPatch = ?",
+			t.Version.VersionMajor, t.Version.VersionMinor, t.Version.VersionPatch)
 	}
 
+	firmware := models.Firmware{}
+	result := query.First(&firmware)
 	if result.Error != nil {
-		return nil, result.Error
-	} else if result.RowsAffected == 0 {
-		return nil, errors.New("Firmware not found")
+		return nil, s.handleQueryError(result.Error)
 	}
 
+	s.logger.Infoln("Firmware received")
 	return &firmware.Firmware, nil
+}
+
+func (s *FirmwareService) handleError(err error) error {
+	s.logger.Errorf("An error occurred: %v", err)
+	return err
+}
+
+func (s *FirmwareService) handleQueryError(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = utils.WrapError(ErrFirmwareNotFound, err)
+	}
+	err = utils.WrapError(ErrFirmwareQuery, err)
+	return s.handleError(err)
 }

@@ -10,9 +10,12 @@ import (
 
 const DATABASE = "hopperdb"
 
-func NewDB(config *config.Config) (db *gorm.DB, err error) {
+func NewDB(cfg *config.Config) (db *gorm.DB, err error) {
+	logger := cfg.Logger.WithContext("db")
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s",
-		config.Username, config.Password, config.Hostname, DATABASE)
+		cfg.Username, cfg.Password, cfg.Hostname, DATABASE)
+
+	logger.Infoln("Opening database...")
 	db, err = gorm.Open(mysql.Open(dsn))
 	return
 }

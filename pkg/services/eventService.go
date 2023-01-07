@@ -8,90 +8,122 @@ import (
 	"github.com/bdreece/hopper/pkg/models"
 	"github.com/bdreece/hopper/pkg/proto"
 	"github.com/bdreece/hopper/pkg/proto/grpc"
+	"github.com/bdreece/hopper/pkg/services/utils"
+	"github.com/bdreece/hopper/pkg/services/utils/iter"
 	"gorm.io/gorm"
 )
 
+var (
+	ErrCreateEvent     = errors.New("Failed creating event")
+	ErrEventNotFound   = errors.New("Event not found")
+	ErrEventQuery      = errors.New("Failed to query event")
+	ErrMissingDeviceId = errors.New("Missing device ID")
+)
+
 type EventService struct {
+	db     *gorm.DB
+	logger utils.Logger
 	grpc.UnimplementedEventServiceServer
-	db *gorm.DB
 }
 
 func NewEventService(cfg *config.Config) *EventService {
 	return &EventService{
-		UnimplementedEventServiceServer: grpc.UnimplementedEventServiceServer{},
 		db:                              cfg.DB,
+		logger:                          cfg.Logger,
+		UnimplementedEventServiceServer: grpc.UnimplementedEventServiceServer{},
 	}
 }
 
-func (e *EventService) CreateEvents(ctx context.Context, in *proto.CreateEventsRequest) (*proto.Events, error) {
+func (s *EventService) CreateEvents(ctx context.Context, in *proto.CreateEventsRequest) (*proto.Events, error) {
+	s.logger.Infoln("Resolving device ID from context...")
 	deviceId, ok := ctx.Value("deviceId").(uint32)
 	if !ok {
-		return nil, errors.New("Missing device ID")
+		return nil, s.handleError(ErrMissingDeviceId)
 	}
 
-	events := make([]models.Event, 1)
-	eventModels := make([]*proto.Event, 1)
+	s.logger.Infoln("Creating events...")
+	events := make([]models.Event, 0, 1)
+	eventMsgs := make([]*proto.Event, 0, 1)
+
 	for _, eventRequest := range in.Events {
 		event := models.NewEvent(deviceId, eventRequest)
-		eventModels = append(eventModels, &event.Event)
+		eventMsgs = append(eventMsgs, &event.Event)
 		events = append(events, event)
 	}
 
-	result := e.db.Create(&events)
+	s.logger.Infof("Saving %d events to database...", len(events))
+	result := s.db.Create(&events)
 	if result.Error != nil {
-		return nil, result.Error
-	} else if result.RowsAffected != int64(len(eventModels)) {
-		return nil, errors.New("Failed to create all events")
+		result.Error = utils.WrapError(ErrCreateEvent, result.Error)
+		return nil, s.handleError(result.Error)
 	}
 
+	s.logger.Infoln("Events saved!")
 	return &proto.Events{
-		Events: eventModels,
+		Events: eventMsgs,
 	}, nil
 }
 
-func (e *EventService) GetEvent(ctx context.Context, in *proto.GetEventRequest) (*proto.Event, error) {
-	var result *gorm.DB = nil
-	event := &models.Event{}
+func (s *EventService) GetEvent(ctx context.Context, in *proto.GetEventRequest) (*proto.Event, error) {
+	s.logger.Infoln("Querying event...")
 
+	query := s.db
 	switch t := in.Where.(type) {
 	case *proto.GetEventRequest_Uuid:
-		result = e.db.
-			Where("uuid = ?", t.Uuid).
-			First(event)
+		s.logger.Infoln("...by UUID")
+		query = query.
+			Where("uuid = ?", t.Uuid)
 	case *proto.GetEventRequest_DeviceTimestamp:
-		result = e.db.
-			Where("deviceId = ? AND timestamp = ?",
-				t.DeviceTimestamp.DeviceId,
-				t.DeviceTimestamp.Timestamp).
-			First(event)
+		s.logger.Infoln("...by device and timestamp")
+		query = query.
+			Joins("inner join device on event.deviceId = device.Id").
+			Where("device.uuid = ? AND event.timestamp = ?",
+				t.DeviceTimestamp.Device.Uuid,
+				t.DeviceTimestamp.Timestamp)
 	}
 
+	event := models.Event{}
+	result := query.First(&event)
 	if result.Error != nil {
-		return nil, result.Error
-	} else if result.RowsAffected == 0 {
-		return nil, errors.New("Event not found")
+		return nil, s.handleQueryError(result.Error)
 	}
 
+	s.logger.Infoln("Event received!")
 	return &event.Event, nil
 }
 
-func (e *EventService) GetEvents(ctx context.Context, in *proto.GetEventsRequest) (*proto.Events, error) {
+func (s *EventService) GetEvents(ctx context.Context, in *proto.GetEventsRequest) (*proto.Events, error) {
+	s.logger.Infoln("Querying events by device UUID")
 	events := make([]models.Event, 0, 1)
-	result := e.db.
+	result := s.db.
 		Joins("inner join device on event.deviceId = device.Id").
 		Where("device.deviceUuid = ?", in.Where.Device.Uuid).
 		Scan(&events)
 
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, s.handleQueryError(result.Error)
 	}
 
-	eventModels := make([]*proto.Event, 1)
-	for i := range events {
-		eventModels = append(eventModels, &events[i].Event)
-	}
-
+	s.logger.Infoln("Events received!")
 	return &proto.Events{
-		Events: eventModels,
+		Events: iter.Collect(iter.NewMap(
+			iter.FromSlice(&events),
+			func(in *models.Event) *proto.Event {
+				return &in.Event
+			},
+		)),
 	}, nil
+}
+
+func (s *EventService) handleError(err error) error {
+	s.logger.Errorf("An error occurred: %v", err)
+	return err
+}
+
+func (s *EventService) handleQueryError(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = utils.WrapError(ErrEventNotFound, err)
+	}
+	err = utils.WrapError(ErrEventQuery, err)
+	return s.handleError(err)
 }

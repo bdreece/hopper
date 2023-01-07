@@ -10,6 +10,7 @@ import (
 func main() {
 	cfg := config.NewConfigBuilder().
 		AddCredentials().
+		AddLogger().
 		Build()
 
 	db, err := app.NewDB(cfg)

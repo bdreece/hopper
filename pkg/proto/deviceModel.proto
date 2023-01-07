@@ -23,5 +23,7 @@ message GetDeviceModelRequest {
 }
 
 message GetDeviceModelsRequest {
-  oneof where { GetTenantRequest tenant = 1; }
+  message Where { GetTenantRequest tenant = 1; }
+
+  Where where = 1;
 }

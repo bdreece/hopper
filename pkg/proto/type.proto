@@ -11,7 +11,7 @@ message Type {
   optional string description = 3;
   string data_type = 4;
 
-  uint32 unit_id = 5;
+  optional uint32 unit_id = 5;
 }
 
 message Types { repeated Type types = 1; }
@@ -24,5 +24,7 @@ message GetTypeRequest {
 }
 
 message GetTypesRequest {
-  oneof where { GetTenantRequest tenant = 1; }
+  message Where { GetTenantRequest tenant = 1; }
+
+  Where where = 1;
 }
