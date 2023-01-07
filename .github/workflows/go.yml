@@ -5,33 +5,32 @@ name: Go
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.19
-        
-    - name: Install dependencies
-      run: |
-        apt install protobuf libprotobuf-dev
-        go install github.com/golang/protobuf/protoc-gen-go
-        go install golang.google.com/grpc/cmd/protoc-gen-go-grpc
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
 
-    - name: Build
-      run: |
-        export PROJECT_ROOT=`pwd`
-        go generate ./...
-        go build -v ./...
+      - name: Install dependencies
+        run: |
+          sudo apt install protobuf libprotobuf-dev
+          go install github.com/golang/protobuf/protoc-gen-go
+          go install golang.google.com/grpc/cmd/protoc-gen-go-grpc
 
-    - name: Test
-      run: go test -v ./...
+      - name: Build
+        run: |
+          export PROJECT_ROOT=`pwd`
+          go generate ./...
+          go build -v ./...
+
+      - name: Test
+        run: go test -v ./...
