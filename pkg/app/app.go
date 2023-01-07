@@ -2,38 +2,43 @@ package app
 
 import (
 	"net"
-	"os"
 
+	"github.com/bdreece/hopper/pkg/config"
+	"github.com/bdreece/hopper/pkg/services"
 	"google.golang.org/grpc"
 )
 
-const (
-	HOSTNAME = "HOPPER_HOSTNAME"
-	USERNAME = "HOPPER_USERNAME"
-	PASSWORD = "HOPPER_PASSWORD"
-	SECRET   = "HOPPER_SECRET"
-)
-
 type App struct {
-	srv *grpc.Server
+	srv    *grpc.Server
+	config *config.Config
 }
 
 func NewApp() (*App, error) {
-	secret := os.Getenv(SECRET)
-	db, err := NewDB()
+	builder := config.NewConfigBuilder().
+		AddCredentials()
+
+	db, err := NewDB(builder.Build())
 	if err != nil {
 		return nil, err
 	}
 
-	srv := NewServer(db, secret)
+	cfg := builder.
+		AddDatabase(db).
+		AddLogger().
+		AddDeviceService(services.NewDeviceService(builder.Build())).
+		AddEventService(services.NewEventService(builder.Build())).
+		AddPort(":8080").
+		Build()
 
+	srv := NewServer(cfg)
 	return &App{
-		srv,
+		srv:    srv,
+		config: cfg,
 	}, nil
 }
 
-func (a *App) Serve(port string) error {
-	listener, err := net.Listen("tcp", port)
+func (a *App) Serve() error {
+	listener, err := net.Listen("tcp", a.config.Port)
 	if err != nil {
 		return err
 	}

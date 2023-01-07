@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/bdreece/hopper/pkg/config"
 	. "github.com/bdreece/hopper/pkg/models"
 	pb "github.com/bdreece/hopper/pkg/proto"
 	"github.com/bdreece/hopper/pkg/proto/grpc"
@@ -15,10 +16,10 @@ type EventService struct {
 	db *gorm.DB
 }
 
-func NewEventService(db *gorm.DB) *EventService {
+func NewEventService(cfg *config.Config) *EventService {
 	return &EventService{
-		grpc.UnimplementedEventServiceServer{},
-		db,
+		UnimplementedEventServiceServer: grpc.UnimplementedEventServiceServer{},
+		db:                              cfg.DB,
 	}
 }
 

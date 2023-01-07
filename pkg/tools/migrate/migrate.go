@@ -4,10 +4,15 @@ import (
 	"log"
 
 	"github.com/bdreece/hopper/pkg/app"
+	"github.com/bdreece/hopper/pkg/config"
 )
 
 func main() {
-	db, err := app.NewDB()
+	cfg := config.NewConfigBuilder().
+		AddCredentials().
+		Build()
+
+	db, err := app.NewDB(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}

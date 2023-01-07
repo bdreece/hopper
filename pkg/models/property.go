@@ -12,10 +12,13 @@ type Property struct {
 	Events []Event
 }
 
-func NewProperty(req pb.CreatePropertyRequest) Property {
+func NewProperty(req *pb.CreatePropertyRequest) Property {
 	return Property{
 		Property: pb.Property{
-			Uuid: uuid.NewString(),
+			Uuid:        uuid.NewString(),
+			Name:        req.Name,
+			Description: req.Description,
+			TypeId:      req.TypeId,
 		},
 	}
 }

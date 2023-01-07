@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/bdreece/hopper/pkg/config"
 	. "github.com/bdreece/hopper/pkg/models"
 	pb "github.com/bdreece/hopper/pkg/proto"
 	"github.com/bdreece/hopper/pkg/proto/grpc"
@@ -15,16 +16,16 @@ import (
 )
 
 type DeviceService struct {
-	grpc.UnimplementedDeviceServiceServer
 	db     *gorm.DB
 	secret string
+	grpc.UnimplementedDeviceServiceServer
 }
 
-func NewDeviceService(db *gorm.DB, secret string) *DeviceService {
+func NewDeviceService(cfg *config.Config) *DeviceService {
 	return &DeviceService{
-		grpc.UnimplementedDeviceServiceServer{},
-		db,
-		secret,
+		db:                               cfg.DB,
+		secret:                           cfg.Secret,
+		UnimplementedDeviceServiceServer: grpc.UnimplementedDeviceServiceServer{},
 	}
 }
 

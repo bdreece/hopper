@@ -1,20 +1,16 @@
 package app
 
 import (
-	pb "github.com/bdreece/hopper/pkg/proto/grpc"
-	"github.com/bdreece/hopper/pkg/services"
+	"github.com/bdreece/hopper/pkg/config"
+	. "github.com/bdreece/hopper/pkg/proto/grpc"
 	"google.golang.org/grpc"
-	"gorm.io/gorm"
 )
 
-func NewServer(db *gorm.DB, secret string) *grpc.Server {
+func NewServer(cfg *config.Config) *grpc.Server {
 	server := grpc.NewServer()
 
-	deviceService := services.NewDeviceService(db, secret)
-	pb.RegisterDeviceServiceServer(server, deviceService)
-
-	eventService := services.NewEventService(db)
-	pb.RegisterEventServiceServer(server, eventService)
+	RegisterDeviceServiceServer(server, cfg.DeviceService)
+	RegisterEventServiceServer(server, cfg.EventService)
 
 	return server
 }
