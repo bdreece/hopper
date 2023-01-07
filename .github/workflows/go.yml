@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt install protobuf libprotobuf-dev
+          sudo apt install protobuf-compiler libprotobuf-dev
           go install github.com/golang/protobuf/protoc-gen-go
           go install golang.google.com/grpc/cmd/protoc-gen-go-grpc
 
