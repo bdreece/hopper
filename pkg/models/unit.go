@@ -2,29 +2,11 @@ package models
 
 import (
 	pb "github.com/bdreece/hopper/pkg/proto"
-
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"gorm.io/gorm"
 )
 
 type Unit struct {
-	NamedEntity
-
-	Symbol string
-
+	gorm.Model
+	pb.Unit
 	Types []Type
-}
-
-func (u Unit) Marshal() (bytes []byte, err error) {
-	msg := &pb.Unit{
-		Id:          uint32(u.ID),
-		CreatedAt:   timestamppb.New(u.CreatedAt),
-		UpdatedAt:   timestamppb.New(u.UpdatedAt),
-		Name:        u.Name,
-		Description: u.Description,
-		Symbol:      u.Symbol,
-	}
-
-	bytes, err = proto.Marshal(msg)
-	return
 }

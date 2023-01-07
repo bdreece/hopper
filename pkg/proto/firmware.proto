@@ -2,33 +2,26 @@ syntax = "proto3";
 package proto;
 option go_package = "github.com/bdreece/hopper/pkg/proto";
 
-import "google/protobuf/timestamp.proto";
-import "model.proto";
-
 message Firmware {
-  uint32 id = 1;
-  google.protobuf.Timestamp created_at = 2;
-  google.protobuf.Timestamp updated_at = 3;
+  string uuid = 1;
+  uint32 version_major = 2;
+  uint32 version_minor = 3;
+  uint32 version_patch = 4;
+  string url = 5;
 
-  uint32 version_major = 4;
-  uint32 version_minor = 5;
-  uint32 version_patch = 6;
-  string url = 7;
-
-  uint32 model_id = 8;
+  uint32 model_id = 6;
 }
 
 message GetFirmwareRequest {
-  message GetFirmwareByVersion {
+  message GetFirmwareByModelVersion {
     uint32 version_major = 1;
     uint32 version_minor = 2;
     uint32 version_patch = 3;
+    uint32 model_id = 4;
   }
 
   oneof where {
-    uint32 id = 1;
-    string uuid = 2;
-    GetModelRequest model = 3;
-    GetFirmwareByVersion version = 4;
+    string uuid = 1;
+    GetFirmwareByModelVersion version = 2;
   }
 }

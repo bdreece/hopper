@@ -6,28 +6,39 @@ import "google/protobuf/timestamp.proto";
 import "device.proto";
 
 message Event {
-  uint32 id = 1;
-  google.protobuf.Timestamp created_at = 2;
-  google.protobuf.Timestamp updated_at = 3;
+  string uuid = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  string value = 3;
+
   uint32 device_id = 4;
   uint32 property_id = 5;
-  string value = 6;
 }
 
 message Events { repeated Event events = 1; }
 
-message CreateEventInput {
-  uint32 property_id = 1;
+message CreateEventRequest {
+  google.protobuf.Timestamp timestamp = 1;
   string value = 2;
+
+  uint32 property_id = 3;
 }
 
-message CreateEventsRequest {
-  uint32 device_id = 1;
-  repeated CreateEventInput events = 2;
-}
+message CreateEventsRequest { repeated CreateEventRequest events = 1; }
 
-message GetEventRequest { uint32 id = 1; }
+message GetEventRequest {
+  message GetEventByDeviceTimestamp {
+    google.protobuf.Timestamp timestamp = 1;
+    uint32 device_id = 2;
+  }
+
+  oneof where {
+    string uuid = 1;
+    GetEventByDeviceTimestamp device_timestamp = 2;
+  }
+}
 
 message GetEventsRequest {
-  oneof where { GetDeviceRequest device = 1; }
+  message Where { GetDeviceRequest device = 1; }
+
+  Where where = 1;
 }

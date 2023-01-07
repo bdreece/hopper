@@ -1,11 +1,11 @@
 syntax = "proto3";
 package proto;
-option go_package = "github.com/bdreece/hopper/pkg/proto";
+option go_package = "github.com/bdreece/hopper/pkg/proto/grpc";
 
 import "device.proto";
 import "event.proto";
 import "firmware.proto";
-import "model.proto";
+import "deviceModel.proto";
 import "property.proto";
 import "tenant.proto";
 import "type.proto";
@@ -28,9 +28,9 @@ service FirmwareService {
   rpc GetFirmware(GetFirmwareRequest) returns (Firmware);
 }
 
-service ModelService {
-  rpc GetModel(GetModelRequest) returns (Model);
-  rpc GetModels(GetModelsRequest) returns (Models);
+service DeviceModelService {
+  rpc GetDeviceModel(GetDeviceModelRequest) returns (DeviceModel);
+  rpc GetDeviceModels(GetDeviceModelsRequest) returns (DeviceModels);
 }
 
 service PropertyService {

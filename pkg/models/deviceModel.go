@@ -5,8 +5,10 @@ import (
 	"gorm.io/gorm"
 )
 
-type Type struct {
+type DeviceModel struct {
 	gorm.Model
-	pb.Type
+	pb.DeviceModel
+	Firmwares  []Firmware
+	Devices    []Device
 	Properties []Property
 }

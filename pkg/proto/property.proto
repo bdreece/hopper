@@ -2,20 +2,16 @@ syntax = "proto3";
 package proto;
 option go_package = "github.com/bdreece/hopper/pkg/proto";
 
-import "google/protobuf/timestamp.proto";
 import "device.proto";
-import "model.proto";
+import "deviceModel.proto";
 
 message Property {
-  uint32 id = 1;
-  google.protobuf.Timestamp created_at = 2;
-  google.protobuf.Timestamp updated_at = 3;
+  string uuid = 1;
+  string name = 2;
+  optional string description = 3;
+  optional string present_value = 4;
 
-  string name = 4;
-  optional string description = 5;
-  optional string present_value = 6;
-
-  uint32 type_id = 7;
+  uint32 type_id = 5;
 }
 
 message Properties { repeated Property properties = 1; }
@@ -26,20 +22,20 @@ message CreatePropertyRequest {
   uint32 type_id = 3;
 }
 
-message GetPropertyRequest { uint32 id = 1; }
+message GetPropertyRequest { string uuid = 1; }
 
 message GetPropertiesRequest {
   oneof where {
     GetDeviceRequest device = 1;
-    GetModelRequest model = 2;
+    GetDeviceModelRequest model = 2;
   }
 }
 
 message UpdatePropertyRequest {
-  uint32 id = 1;
+  GetPropertyRequest where = 1;
   optional string name = 2;
   optional string description = 3;
   optional uint32 type_id = 4;
 }
 
-message DeletePropertyRequest { uint32 id = 1; }
+message DeletePropertyRequest { string uuid = 1; }

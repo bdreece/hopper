@@ -2,33 +2,20 @@ package models
 
 import (
 	pb "github.com/bdreece/hopper/pkg/proto"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type Property struct {
-	NamedEntity
-
-	PresentValue *string
-
-	TypeID   uint
-	DeviceID *uint
-	ModelID  *uint
-
+	gorm.Model
+	pb.Property
 	Events []Event
 }
 
-func (p Property) Marshal() (bytes []byte, err error) {
-	msg := &pb.Property{
-		Id:           uint32(p.ID),
-		CreatedAt:    timestamppb.New(p.CreatedAt),
-		UpdatedAt:    timestamppb.New(p.UpdatedAt),
-		Name:         p.Name,
-		Description:  p.Description,
-		PresentValue: p.PresentValue,
-		TypeId:       uint32(p.TypeID),
+func NewProperty(req pb.CreatePropertyRequest) Property {
+	return Property{
+		Property: pb.Property{
+			Uuid: uuid.NewString(),
+		},
 	}
-
-	bytes, err = proto.Marshal(msg)
-	return
 }
