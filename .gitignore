@@ -1,1 +1,2 @@
 pkg/proto/**/*.pb.go
+.env

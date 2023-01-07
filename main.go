@@ -1,7 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"log"
+
+	"github.com/bdreece/hopper/pkg/app"
+)
 
 func main() {
-	fmt.Println("Hello, world!")
+	a, err := app.NewApp()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	a.Serve(":8080")
 }
