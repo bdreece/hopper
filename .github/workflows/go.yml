@@ -30,6 +30,7 @@ jobs:
       - name: Build
         run: |
           export PROJECT_ROOT=`pwd`
+          protoc --version
           go generate ./...
           go build -v ./...
 
