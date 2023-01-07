@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/bdreece/hopper/pkg/config"
-	. "github.com/bdreece/hopper/pkg/models"
-	pb "github.com/bdreece/hopper/pkg/proto"
+	"github.com/bdreece/hopper/pkg/models"
+	"github.com/bdreece/hopper/pkg/proto"
 	"github.com/bdreece/hopper/pkg/proto/grpc"
 	"gorm.io/gorm"
 )
@@ -23,16 +23,16 @@ func NewEventService(cfg *config.Config) *EventService {
 	}
 }
 
-func (e *EventService) CreateEvents(ctx context.Context, in *pb.CreateEventsRequest) (*pb.Events, error) {
+func (e *EventService) CreateEvents(ctx context.Context, in *proto.CreateEventsRequest) (*proto.Events, error) {
 	deviceId, ok := ctx.Value("deviceId").(uint32)
 	if !ok {
 		return nil, errors.New("Missing device ID")
 	}
 
-	events := make([]Event, 1)
-	eventModels := make([]*pb.Event, 1)
+	events := make([]models.Event, 1)
+	eventModels := make([]*proto.Event, 1)
 	for _, eventRequest := range in.Events {
-		event := NewEvent(deviceId, eventRequest)
+		event := models.NewEvent(deviceId, eventRequest)
 		eventModels = append(eventModels, &event.Event)
 		events = append(events, event)
 	}
@@ -44,23 +44,25 @@ func (e *EventService) CreateEvents(ctx context.Context, in *pb.CreateEventsRequ
 		return nil, errors.New("Failed to create all events")
 	}
 
-	return &pb.Events{
+	return &proto.Events{
 		Events: eventModels,
 	}, nil
 }
 
-func (e *EventService) GetEvent(ctx context.Context, in *pb.GetEventRequest) (*pb.Event, error) {
+func (e *EventService) GetEvent(ctx context.Context, in *proto.GetEventRequest) (*proto.Event, error) {
 	var result *gorm.DB = nil
-	event := &Event{}
+	event := &models.Event{}
 
 	switch t := in.Where.(type) {
-	case *pb.GetEventRequest_Uuid:
+	case *proto.GetEventRequest_Uuid:
 		result = e.db.
 			Where("uuid = ?", t.Uuid).
 			First(event)
-	case *pb.GetEventRequest_DeviceTimestamp:
+	case *proto.GetEventRequest_DeviceTimestamp:
 		result = e.db.
-			Where("deviceId = ? AND timestamp = ?", t.DeviceTimestamp.DeviceId, t.DeviceTimestamp.Timestamp).
+			Where("deviceId = ? AND timestamp = ?",
+				t.DeviceTimestamp.DeviceId,
+				t.DeviceTimestamp.Timestamp).
 			First(event)
 	}
 
@@ -73,8 +75,8 @@ func (e *EventService) GetEvent(ctx context.Context, in *pb.GetEventRequest) (*p
 	return &event.Event, nil
 }
 
-func (e *EventService) GetEvents(ctx context.Context, in *pb.GetEventsRequest) (*pb.Events, error) {
-	events := make([]Event, 0, 1)
+func (e *EventService) GetEvents(ctx context.Context, in *proto.GetEventsRequest) (*proto.Events, error) {
+	events := make([]models.Event, 0, 1)
 	result := e.db.
 		Joins("inner join device on event.deviceId = device.Id").
 		Where("device.deviceUuid = ?", in.Where.Device.Uuid).
@@ -84,12 +86,12 @@ func (e *EventService) GetEvents(ctx context.Context, in *pb.GetEventsRequest) (
 		return nil, result.Error
 	}
 
-	eventModels := make([]*pb.Event, 1)
+	eventModels := make([]*proto.Event, 1)
 	for i := range events {
 		eventModels = append(eventModels, &events[i].Event)
 	}
 
-	return &pb.Events{
+	return &proto.Events{
 		Events: eventModels,
 	}, nil
 }

@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/bdreece/hopper/pkg/config"
-	. "github.com/bdreece/hopper/pkg/models"
-	pb "github.com/bdreece/hopper/pkg/proto"
+	"github.com/bdreece/hopper/pkg/models"
+	"github.com/bdreece/hopper/pkg/proto"
 	"github.com/bdreece/hopper/pkg/proto/grpc"
 	"github.com/bdreece/hopper/pkg/services/utils"
 	"github.com/google/uuid"
@@ -29,25 +29,28 @@ func NewDeviceService(cfg *config.Config) *DeviceService {
 	}
 }
 
-func (s *DeviceService) AuthDevice(ctx context.Context, in *pb.AuthDeviceRequest) (*pb.AuthDeviceResponse, error) {
-	device := &Device{}
+func (s *DeviceService) AuthDevice(ctx context.Context, in *proto.AuthDeviceRequest) (*proto.AuthDeviceResponse, error) {
+	device := models.Device{}
 
 	id, tenantId, err := utils.DecodeApiKey(in.ApiKey, s.secret)
 	if err != nil {
 		return nil, err
 	}
 
-	result := s.db.Where("id = ?", id).First(device)
+	result := s.db.
+		Where("id = ?", id).
+		First(&device)
+
 	if result.Error != nil {
 		return nil, result.Error
 	} else if result.RowsAffected == 0 {
-		device = &Device{
-			Device: pb.Device{
+		device = models.Device{
+			Device: proto.Device{
 				Uuid:     uuid.NewString(),
 				TenantId: uint32(*tenantId),
 			},
 		}
-		s.db.Save(device)
+		s.db.Save(&device)
 	}
 
 	jwt, expiration, err := utils.CreateToken(fmt.Sprint(id), fmt.Sprint(tenantId), s.secret)
@@ -55,15 +58,17 @@ func (s *DeviceService) AuthDevice(ctx context.Context, in *pb.AuthDeviceRequest
 		return nil, err
 	}
 
-	return &pb.AuthDeviceResponse{
+	return &proto.AuthDeviceResponse{
 		Token:      *jwt,
 		Expiration: timestamppb.New(*expiration),
 	}, nil
 }
 
-func (s *DeviceService) GetDevice(ctx context.Context, in *pb.GetDeviceRequest) (*pb.Device, error) {
-	device := &Device{}
-	result := s.db.Where("uuid = ?", in.Uuid).First(device)
+func (s *DeviceService) GetDevice(ctx context.Context, in *proto.GetDeviceRequest) (*proto.Device, error) {
+	device := models.Device{}
+	result := s.db.
+		Where("uuid = ?", in.Uuid).
+		First(&device)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -74,9 +79,11 @@ func (s *DeviceService) GetDevice(ctx context.Context, in *pb.GetDeviceRequest) 
 	return &device.Device, nil
 }
 
-func (s *DeviceService) UpdateDevice(ctx context.Context, in *pb.UpdateDeviceRequest) (*pb.Device, error) {
-	device := &Device{}
-	result := s.db.Where("uuid = ?", in.Where.Uuid).First(device)
+func (s *DeviceService) UpdateDevice(ctx context.Context, in *proto.UpdateDeviceRequest) (*proto.Device, error) {
+	device := models.Device{}
+	result := s.db.
+		Where("uuid = ?", in.Where.Uuid).
+		First(&device)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -85,14 +92,16 @@ func (s *DeviceService) UpdateDevice(ctx context.Context, in *pb.UpdateDeviceReq
 	}
 
 	device.Update(in)
-	s.db.Save(device)
+	s.db.Save(&device)
 
 	return &device.Device, nil
 }
 
-func (s *DeviceService) DeleteDevice(ctx context.Context, in *pb.DeleteDeviceRequest) (*pb.Device, error) {
-	device := &Device{}
-	result := s.db.Where("uuid = ?", in.GetUuid()).Delete(device)
+func (s *DeviceService) DeleteDevice(ctx context.Context, in *proto.DeleteDeviceRequest) (*proto.Device, error) {
+	device := models.Device{}
+	result := s.db.
+		Where("uuid = ?", in.GetUuid()).
+		Delete(&device)
 
 	if result.Error != nil {
 		return nil, result.Error
