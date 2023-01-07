@@ -1,3 +1,21 @@
+/*
+ * hopper - A gRPC API for collecting IoT device event messages
+ * Copyright (C) 2022 Brian Reece
+
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package services
 
 import (
@@ -33,7 +51,7 @@ type DeviceService struct {
 func NewDeviceService(cfg *config.Config) *DeviceService {
 	return &DeviceService{
 		db:     cfg.DB,
-		logger: cfg.Logger,
+		logger: cfg.Logger.WithContext("DeviceService"),
 		secret: cfg.Secret,
 
 		UnimplementedDeviceServiceServer: grpc.UnimplementedDeviceServiceServer{},
@@ -41,16 +59,15 @@ func NewDeviceService(cfg *config.Config) *DeviceService {
 }
 
 func (s *DeviceService) AuthDevice(ctx context.Context, in *proto.AuthDeviceRequest) (*proto.AuthDeviceResponse, error) {
-	s.logger.Infoln("Authenticating device...")
-
-	s.logger.Infoln("Decoding API key...")
+	logger := s.logger.WithContext("AuthDevice")
+	logger.Infoln("Decoding API key...")
 	id, tenantId, err := utils.DecodeApiKey(in.ApiKey, s.secret)
 	if err != nil {
 		err = utils.WrapError(ErrDecodeApiKey, err)
 		return nil, s.handleError(err)
 	}
 
-	s.logger.Infoln("Querying device...")
+	logger.Infoln("Querying device...")
 	device := models.Device{}
 	result := s.db.
 		Where("id = ?", id).
@@ -61,8 +78,8 @@ func (s *DeviceService) AuthDevice(ctx context.Context, in *proto.AuthDeviceRequ
 			return nil, s.handleQueryError(result.Error)
 		}
 
-		s.logger.Warnln("Device does not exist!")
-		s.logger.Infoln("Creating new device...")
+		logger.Warnln("Device does not exist!")
+		logger.Infoln("Creating new device...")
 		device = models.Device{
 			Device: proto.Device{
 				Uuid:     uuid.NewString(),
@@ -75,17 +92,17 @@ func (s *DeviceService) AuthDevice(ctx context.Context, in *proto.AuthDeviceRequ
 			return nil, s.handleQueryError(result.Error)
 		}
 
-		s.logger.Infoln("Device created!")
+		logger.Infoln("Device created!")
 	}
 
-	s.logger.Infoln("Creating access token...")
+	logger.Infoln("Creating access token...")
 	jwt, expiration, err := utils.CreateToken(fmt.Sprint(id), fmt.Sprint(tenantId), s.secret)
 	if err != nil {
 		err = utils.WrapError(ErrCreateToken, err)
 		return nil, s.handleError(err)
 	}
 
-	s.logger.Infoln("Device authenticated!")
+	logger.Infoln("Device authenticated!")
 	return &proto.AuthDeviceResponse{
 		Token:      *jwt,
 		Expiration: timestamppb.New(*expiration),
@@ -93,7 +110,8 @@ func (s *DeviceService) AuthDevice(ctx context.Context, in *proto.AuthDeviceRequ
 }
 
 func (s *DeviceService) GetDevice(ctx context.Context, in *proto.GetDeviceRequest) (*proto.Device, error) {
-	s.logger.Infoln("Querying device by UUID...")
+	logger := s.logger.WithContext("GetDevice")
+	logger.Infoln("Querying device by UUID...")
 	device := models.Device{}
 	result := s.db.
 		Where("uuid = ?", in.Uuid).
@@ -103,12 +121,14 @@ func (s *DeviceService) GetDevice(ctx context.Context, in *proto.GetDeviceReques
 		return nil, s.handleQueryError(result.Error)
 	}
 
-	s.logger.Infoln("Device received!")
+	logger.Infoln("Device received!")
 	return &device.Device, nil
 }
 
 func (s *DeviceService) UpdateDevice(ctx context.Context, in *proto.UpdateDeviceRequest) (*proto.Device, error) {
-	s.logger.Infoln("Querying device by UUID...")
+	logger := s.logger.WithContext("UpdateDevice")
+	logger.Infoln("Querying device by UUID...")
+
 	device := models.Device{}
 	result := s.db.
 		Where("uuid = ?", in.Where.Uuid).
@@ -118,16 +138,18 @@ func (s *DeviceService) UpdateDevice(ctx context.Context, in *proto.UpdateDevice
 		return nil, s.handleQueryError(result.Error)
 	}
 
-	s.logger.Infoln("Updating device...")
+	logger.Infoln("Updating device...")
 	device.Update(in)
 	s.db.Save(&device)
 
-	s.logger.Infoln("Device updated!")
+	logger.Infoln("Device updated!")
 	return &device.Device, nil
 }
 
 func (s *DeviceService) DeleteDevice(ctx context.Context, in *proto.DeleteDeviceRequest) (*proto.Device, error) {
-	s.logger.Infoln("Querying device by UUID...")
+	logger := s.logger.WithContext("DeleteDevice")
+	logger.Infoln("Querying device by UUID...")
+
 	device := models.Device{}
 	result := s.db.
 		Where("uuid = ?", in.GetUuid()).
@@ -137,13 +159,13 @@ func (s *DeviceService) DeleteDevice(ctx context.Context, in *proto.DeleteDevice
 		return nil, s.handleQueryError(result.Error)
 	}
 
-	s.logger.Infoln("Deleting device...")
+	logger.Infoln("Deleting device...")
 	result = s.db.Delete(&device)
 	if result.Error != nil {
 		return nil, s.handleQueryError(result.Error)
 	}
 
-	s.logger.Infoln("Device deleted")
+	logger.Infoln("Device deleted")
 	return &device.Device, nil
 }
 

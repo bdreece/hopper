@@ -1,3 +1,21 @@
+/*
+ * hopper - A gRPC API for collecting IoT device event messages
+ * Copyright (C) 2022 Brian Reece
+
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package services
 
 import (
@@ -26,25 +44,27 @@ type DeviceModelService struct {
 
 func NewDeviceModelService(cfg *config.Config) *DeviceModelService {
 	return &DeviceModelService{
-		db:                                    cfg.DB,
-		logger:                                cfg.Logger.WithContext("DeviceModelService"),
+		db:     cfg.DB,
+		logger: cfg.Logger.WithContext("DeviceModelService"),
+
 		UnimplementedDeviceModelServiceServer: grpc.UnimplementedDeviceModelServiceServer{},
 	}
 }
 
 func (s *DeviceModelService) GetDeviceModel(ctx context.Context, in *proto.GetDeviceModelRequest) (*proto.DeviceModel, error) {
-	s.logger.Infoln("Querying device model...")
+	logger := s.logger.WithContext("GetDeviceModel")
+	logger.Infoln("Querying device model...")
 
 	query := s.db
 	switch t := in.Where.(type) {
 	case *proto.GetDeviceModelRequest_Device:
-		s.logger.Infoln("...by device")
+		logger.Infoln("...by device")
 		query = query.
 			Joins("inner join deviceModel on device.modelId = deviceModel.Id").
 			Where("device.Uuid = ?", t.Device.GetUuid())
 
 	case *proto.GetDeviceModelRequest_Uuid:
-		s.logger.Infoln("...by UUID")
+		logger.Infoln("...by UUID")
 		query = query.Where("uuid = ?", t.Uuid)
 	}
 
@@ -54,21 +74,22 @@ func (s *DeviceModelService) GetDeviceModel(ctx context.Context, in *proto.GetDe
 		return nil, s.handleQueryError(result.Error)
 	}
 
-	s.logger.Infoln("Device model received!")
+	logger.Infoln("Device model received!")
 	return &deviceModel.DeviceModel, nil
 }
 
 func (s *DeviceModelService) GetDeviceModels(ctx context.Context, in *proto.GetDeviceModelsRequest) (*proto.DeviceModels, error) {
-	s.logger.Infoln("Querying device models...")
+	logger := s.logger.WithContext("GetDeviceModels")
+	logger.Infoln("Querying device models...")
 
 	query := s.db.Joins("inner join tenant on deviceModel.tenantId = tenant.Id")
 	switch t := in.Where.Tenant.Where.(type) {
 	case *proto.GetTenantRequest_Uuid:
-		s.logger.Infoln("...with UUID")
+		logger.Infoln("...with UUID")
 		query = query.Where("tenant.uuid = ?", t.Uuid)
 
 	case *proto.GetTenantRequest_Device:
-		s.logger.Infoln("...by device with UUID")
+		logger.Infoln("...by device with UUID")
 		query = query.
 			Joins("inner join device on device.tenantId = tenant.Id").
 			Where("device.uuid = ?", t.Device.Uuid)
@@ -80,7 +101,7 @@ func (s *DeviceModelService) GetDeviceModels(ctx context.Context, in *proto.GetD
 		return nil, s.handleQueryError(result.Error)
 	}
 
-	s.logger.Infoln("Device models received!")
+	logger.Infoln("Device models received!")
 	return &proto.DeviceModels{
 		Models: iter.Collect(iter.NewMap(
 			iter.FromSlice(&deviceModels),

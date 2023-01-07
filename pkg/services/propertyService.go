@@ -1,3 +1,21 @@
+/*
+ * hopper - A gRPC API for collecting IoT device event messages
+ * Copyright (C) 2022 Brian Reece
+
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package services
 
 import (
@@ -27,14 +45,17 @@ type PropertyService struct {
 
 func NewPropertyService(cfg *config.Config) *PropertyService {
 	return &PropertyService{
-		db:                                 cfg.DB,
-		logger:                             cfg.Logger,
+		db:     cfg.DB,
+		logger: cfg.Logger.WithContext("PropertyService"),
+
 		UnimplementedPropertyServiceServer: grpc.UnimplementedPropertyServiceServer{},
 	}
 }
 
 func (s *PropertyService) CreateProperty(ctx context.Context, in *proto.CreatePropertyRequest) (*proto.Property, error) {
-	s.logger.Infoln("Creating property...")
+	logger := s.logger.WithContext("CreateProperty")
+	logger.Infoln("Creating property...")
+
 	property := models.Property{
 		Property: proto.Property{
 			Uuid:        uuid.NewString(),
@@ -44,18 +65,20 @@ func (s *PropertyService) CreateProperty(ctx context.Context, in *proto.CreatePr
 		},
 	}
 
-	s.logger.Infoln("Saving property to database...")
+	logger.Infoln("Saving property to database...")
 	result := s.db.Create(&property)
 	if result.Error != nil {
 		return nil, s.handleQueryError(result.Error)
 	}
 
-	s.logger.Infoln("Property saved!")
+	logger.Infoln("Property saved!")
 	return &property.Property, nil
 }
 
 func (s *PropertyService) GetProperty(ctx context.Context, in *proto.GetPropertyRequest) (*proto.Property, error) {
-	s.logger.Infoln("Querying property by UUID...")
+	logger := s.logger.WithContext("GetProperty")
+	logger.Infoln("Querying property by UUID...")
+
 	property := models.Property{}
 	result := s.db.
 		Where("uuid = ?", in.Uuid).
@@ -65,32 +88,33 @@ func (s *PropertyService) GetProperty(ctx context.Context, in *proto.GetProperty
 		return nil, s.handleQueryError(result.Error)
 	}
 
-	s.logger.Infoln("Property received!")
+	logger.Infoln("Property received!")
 	return &property.Property, nil
 }
 
 func (s *PropertyService) GetProperties(ctx context.Context, in *proto.GetPropertiesRequest) (*proto.Properties, error) {
-	s.logger.Infoln("Querying properties...")
+	logger := s.logger.WithContext("GetProperties")
+	logger.Infoln("Querying properties...")
 
 	query := s.db
 	switch t := in.Where.(type) {
 	case *proto.GetPropertiesRequest_Device:
-		s.logger.Infoln("...by device with UUID")
+		logger.Infoln("...by device with UUID")
 		query = query.
 			Joins("inner join device on property.deviceId = device.Id").
 			Where("device.uuid = ?", t.Device.Uuid)
 
 	case *proto.GetPropertiesRequest_Model:
-		s.logger.Infoln("...by device model")
+		logger.Infoln("...by device model")
 		query = query.Joins("inner join model on property.modelId = model.Id")
 
 		switch u := t.Model.Where.(type) {
 		case *proto.GetDeviceModelRequest_Uuid:
-			s.logger.Infoln("...with UUID")
+			logger.Infoln("...with UUID")
 			query = query.Where("model.uuid = ?", u.Uuid)
 
 		case *proto.GetDeviceModelRequest_Device:
-			s.logger.Infoln("...by device with UUID")
+			logger.Infoln("...by device with UUID")
 			query = query.
 				Joins("inner join device on device.modelId = model.Id").
 				Where("device.uuid = ?", u.Device.Uuid)
@@ -103,7 +127,7 @@ func (s *PropertyService) GetProperties(ctx context.Context, in *proto.GetProper
 		return nil, s.handleQueryError(result.Error)
 	}
 
-	s.logger.Infoln("Properties received!")
+	logger.Infoln("Properties received!")
 	return &proto.Properties{
 		Properties: iter.Collect(iter.NewMap(
 			iter.FromSlice(&properties),
@@ -114,7 +138,9 @@ func (s *PropertyService) GetProperties(ctx context.Context, in *proto.GetProper
 }
 
 func (s *PropertyService) UpdateProperty(ctx context.Context, in *proto.UpdatePropertyRequest) (*proto.Property, error) {
-	s.logger.Infoln("Querying property...")
+	logger := s.logger.WithContext("UpdateProperty")
+	logger.Infoln("Querying property...")
+
 	property := models.Property{}
 	result := s.db.
 		Where("uuid = ?", in.Where.Uuid).
@@ -124,16 +150,18 @@ func (s *PropertyService) UpdateProperty(ctx context.Context, in *proto.UpdatePr
 		return nil, s.handleQueryError(result.Error)
 	}
 
-	s.logger.Infoln("Updating property...")
+	logger.Infoln("Updating property...")
 	property.Update(in)
 	s.db.Save(&property)
 
-	s.logger.Infoln("Property updated!")
+	logger.Infoln("Property updated!")
 	return &property.Property, nil
 }
 
 func (s *PropertyService) DeleteProperty(ctx context.Context, in *proto.DeletePropertyRequest) (*proto.Property, error) {
-	s.logger.Infoln("Querying property with UUID...")
+	logger := s.logger.WithContext("DeleteProperty")
+	logger.Infoln("Querying property with UUID...")
+
 	property := models.Property{}
 	result := s.db.
 		Where("uuid = ?", in.Where.Uuid).
@@ -143,13 +171,13 @@ func (s *PropertyService) DeleteProperty(ctx context.Context, in *proto.DeletePr
 		return nil, s.handleQueryError(result.Error)
 	}
 
-	s.logger.Infoln("Deleting property...")
+	logger.Infoln("Deleting property...")
 	result = s.db.Delete(&property)
 	if result.Error != nil {
 		return nil, s.handleQueryError(result.Error)
 	}
 
-	s.logger.Infoln("Property deleted!")
+	logger.Infoln("Property deleted!")
 	return &property.Property, nil
 }
 

@@ -1,3 +1,21 @@
+/*
+ * hopper - A gRPC API for collecting IoT device event messages
+ * Copyright (C) 2022 Brian Reece
+
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package services
 
 import (
@@ -28,20 +46,22 @@ type EventService struct {
 
 func NewEventService(cfg *config.Config) *EventService {
 	return &EventService{
-		db:                              cfg.DB,
-		logger:                          cfg.Logger,
+		db:     cfg.DB,
+		logger: cfg.Logger.WithContext("EventService"),
+
 		UnimplementedEventServiceServer: grpc.UnimplementedEventServiceServer{},
 	}
 }
 
 func (s *EventService) CreateEvents(ctx context.Context, in *proto.CreateEventsRequest) (*proto.Events, error) {
-	s.logger.Infoln("Resolving device ID from context...")
+	logger := s.logger.WithContext("CreateEvents")
+	logger.Infoln("Resolving device ID from context...")
 	deviceId, ok := ctx.Value("deviceId").(uint32)
 	if !ok {
 		return nil, s.handleError(ErrMissingDeviceId)
 	}
 
-	s.logger.Infoln("Creating events...")
+	logger.Infoln("Creating events...")
 	events := make([]models.Event, 0, 1)
 	eventMsgs := make([]*proto.Event, 0, 1)
 
@@ -51,30 +71,32 @@ func (s *EventService) CreateEvents(ctx context.Context, in *proto.CreateEventsR
 		events = append(events, event)
 	}
 
-	s.logger.Infof("Saving %d events to database...", len(events))
+	logger.Infof("Saving %d events to database...", len(events))
 	result := s.db.Create(&events)
 	if result.Error != nil {
 		result.Error = utils.WrapError(ErrCreateEvent, result.Error)
 		return nil, s.handleError(result.Error)
 	}
 
-	s.logger.Infoln("Events saved!")
+	logger.Infoln("Events saved!")
 	return &proto.Events{
 		Events: eventMsgs,
 	}, nil
 }
 
 func (s *EventService) GetEvent(ctx context.Context, in *proto.GetEventRequest) (*proto.Event, error) {
-	s.logger.Infoln("Querying event...")
+	logger := s.logger.WithContext("GetEvent")
+	logger.Infoln("Querying event...")
 
 	query := s.db
 	switch t := in.Where.(type) {
 	case *proto.GetEventRequest_Uuid:
-		s.logger.Infoln("...by UUID")
+		logger.Infoln("...by UUID")
 		query = query.
 			Where("uuid = ?", t.Uuid)
+
 	case *proto.GetEventRequest_DeviceTimestamp:
-		s.logger.Infoln("...by device and timestamp")
+		logger.Infoln("...by device and timestamp")
 		query = query.
 			Joins("inner join device on event.deviceId = device.Id").
 			Where("device.uuid = ? AND event.timestamp = ?",
@@ -88,12 +110,14 @@ func (s *EventService) GetEvent(ctx context.Context, in *proto.GetEventRequest) 
 		return nil, s.handleQueryError(result.Error)
 	}
 
-	s.logger.Infoln("Event received!")
+	logger.Infoln("Event received!")
 	return &event.Event, nil
 }
 
 func (s *EventService) GetEvents(ctx context.Context, in *proto.GetEventsRequest) (*proto.Events, error) {
-	s.logger.Infoln("Querying events by device UUID")
+	logger := s.logger.WithContext("GetEvents")
+	logger.Infoln("Querying events by device UUID")
+
 	events := make([]models.Event, 0, 1)
 	result := s.db.
 		Joins("inner join device on event.deviceId = device.Id").
@@ -104,7 +128,7 @@ func (s *EventService) GetEvents(ctx context.Context, in *proto.GetEventsRequest
 		return nil, s.handleQueryError(result.Error)
 	}
 
-	s.logger.Infoln("Events received!")
+	logger.Infoln("Events received!")
 	return &proto.Events{
 		Events: iter.Collect(iter.NewMap(
 			iter.FromSlice(&events),
