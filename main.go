@@ -12,5 +12,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	a.Serve(":8080")
+	a.Serve()
 }
