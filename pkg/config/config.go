@@ -8,13 +8,14 @@ import (
 )
 
 type Config struct {
-	DeviceService grpc.DeviceServiceServer
-	EventService  grpc.EventServiceServer
-	Logger        *log.Logger
-	DB            *gorm.DB
-	Port          string
-	Hostname      string
-	Username      string
-	Password      string
-	Secret        string
+	DeviceService   grpc.DeviceServiceServer
+	EventService    grpc.EventServiceServer
+	FirmwareService grpc.FirmwareServiceServer
+	Logger          *log.Logger
+	DB              *gorm.DB
+	Port            string
+	Hostname        string
+	Username        string
+	Password        string
+	Secret          string
 }

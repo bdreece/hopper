@@ -40,6 +40,11 @@ func (b ConfigBuilder) AddEventService(eventService grpc.EventServiceServer) Con
 	return b
 }
 
+func (b ConfigBuilder) AddFirmwareService(firmwareService grpc.FirmwareServiceServer) ConfigBuilder {
+	b.config.FirmwareService = firmwareService
+	return b
+}
+
 func (b ConfigBuilder) AddCredentials() ConfigBuilder {
 	b.config.Hostname = os.Getenv(SECRET)
 	b.config.Username = os.Getenv(HOSTNAME)
