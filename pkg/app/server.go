@@ -11,6 +11,7 @@ func NewServer(cfg *config.Config) *grpc.Server {
 
 	RegisterDeviceServiceServer(server, cfg.DeviceService)
 	RegisterEventServiceServer(server, cfg.EventService)
+	RegisterFirmwareServiceServer(server, cfg.FirmwareService)
 
 	return server
 }

@@ -11,8 +11,8 @@ import (
 const DATABASE = "hopperdb"
 
 func NewDB(config *config.Config) (db *gorm.DB, err error) {
-
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s", config.Username, config.Password, config.Hostname, DATABASE)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s",
+		config.Username, config.Password, config.Hostname, DATABASE)
 	db, err = gorm.Open(mysql.Open(dsn))
 	return
 }

@@ -17,16 +17,22 @@ func NewApp() (*App, error) {
 	builder := config.NewConfigBuilder().
 		AddCredentials()
 
-	db, err := NewDB(builder.Build())
+	cfg := builder.Build()
+
+	db, err := NewDB(cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	cfg := builder.
+	cfg = builder.
 		AddDatabase(db).
+		Build()
+
+	cfg = builder.
 		AddLogger().
-		AddDeviceService(services.NewDeviceService(builder.Build())).
-		AddEventService(services.NewEventService(builder.Build())).
+		AddDeviceService(services.NewDeviceService(cfg)).
+		AddEventService(services.NewEventService(cfg)).
+		AddFirmwareService(services.NewFirmwareService(cfg)).
 		AddPort(":8080").
 		Build()
 
