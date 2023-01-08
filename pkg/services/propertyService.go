@@ -47,8 +47,6 @@ func NewPropertyService(cfg *config.Config) *PropertyService {
 	return &PropertyService{
 		db:     cfg.DB,
 		logger: cfg.Logger.WithContext("PropertyService"),
-
-		UnimplementedPropertyServiceServer: grpc.UnimplementedPropertyServiceServer{},
 	}
 }
 

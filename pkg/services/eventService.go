@@ -49,8 +49,6 @@ func NewEventService(cfg *config.Config) *EventService {
 	return &EventService{
 		db:     cfg.DB,
 		logger: cfg.Logger.WithContext("EventService"),
-
-		UnimplementedEventServiceServer: grpc.UnimplementedEventServiceServer{},
 	}
 }
 

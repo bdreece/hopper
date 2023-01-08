@@ -46,8 +46,6 @@ func NewUnitService(cfg *config.Config) *UnitService {
 	return &UnitService{
 		db:     cfg.DB,
 		logger: cfg.Logger,
-
-		UnimplementedUnitServiceServer: grpc.UnimplementedUnitServiceServer{},
 	}
 }
 

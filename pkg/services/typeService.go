@@ -47,8 +47,6 @@ func NewTypeService(cfg *config.Config) *TypeService {
 	return &TypeService{
 		db:     cfg.DB,
 		logger: cfg.Logger,
-
-		UnimplementedTypeServiceServer: grpc.UnimplementedTypeServiceServer{},
 	}
 }
 

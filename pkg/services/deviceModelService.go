@@ -46,8 +46,6 @@ func NewDeviceModelService(cfg *config.Config) *DeviceModelService {
 	return &DeviceModelService{
 		db:     cfg.DB,
 		logger: cfg.Logger.WithContext("DeviceModelService"),
-
-		UnimplementedDeviceModelServiceServer: grpc.UnimplementedDeviceModelServiceServer{},
 	}
 }
 

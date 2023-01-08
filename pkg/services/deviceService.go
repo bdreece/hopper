@@ -54,8 +54,6 @@ func NewDeviceService(cfg *config.Config) *DeviceService {
 		db:     cfg.DB,
 		logger: cfg.Logger.WithContext("DeviceService"),
 		secret: cfg.Secret,
-
-		UnimplementedDeviceServiceServer: grpc.UnimplementedDeviceServiceServer{},
 	}
 }
 

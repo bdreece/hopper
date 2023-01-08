@@ -46,8 +46,6 @@ func NewTenantService(cfg *config.Config) *TenantService {
 	return &TenantService{
 		db:     cfg.DB,
 		logger: cfg.Logger,
-
-		UnimplementedTenantServiceServer: grpc.UnimplementedTenantServiceServer{},
 	}
 }
 

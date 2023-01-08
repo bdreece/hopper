@@ -46,8 +46,6 @@ func NewFirmwareService(cfg *config.Config) *FirmwareService {
 	return &FirmwareService{
 		db:     cfg.DB,
 		logger: cfg.Logger.WithContext("FirmwareService"),
-
-		UnimplementedFirmwareServiceServer: grpc.UnimplementedFirmwareServiceServer{},
 	}
 }
 
