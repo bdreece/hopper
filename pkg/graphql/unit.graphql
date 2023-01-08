@@ -1,0 +1,11 @@
+type Unit {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  name: String!
+  description: String
+  symbol: String!
+
+  types: [Type!]!
+}

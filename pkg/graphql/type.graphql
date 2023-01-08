@@ -1,0 +1,13 @@
+type Type {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  name: String!
+  description: String
+  data_type: String!
+
+  unitId: ID!
+  unit: Unit!
+  properties: [Property!]!
+}

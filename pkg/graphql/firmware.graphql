@@ -1,0 +1,14 @@
+type Firmware {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  versionMajor: Int!
+  versionMinor: Int!
+  versionPatch: Int!
+  url: String!
+
+  modelId: ID!
+  model: DeviceModel!
+  devices: [Device!]!
+}

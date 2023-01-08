@@ -1,0 +1,17 @@
+type Device {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  name: String!
+  description: String
+
+  tenantId: ID!
+  tenant: Tenant!
+  firmwareId: ID!
+  firmware: Firmware!
+  modelId: ID!
+  model: DeviceModel!
+  properties: [Property!]!
+  events: [Event!]!
+}

@@ -1,0 +1,10 @@
+type Tenant {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  name: String!
+  description: String
+
+  devices: [Device!]!
+}

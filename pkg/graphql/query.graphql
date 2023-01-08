@@ -1,0 +1,10 @@
+type Query {
+  devices: [Device!]!
+  deviceModels: [DeviceModel!]!
+  events: [Event!]!
+  firmwares: [Firmware!]!
+  properties: [Property!]!
+  tenants: [Tenant!]!
+  types: [Type!]!
+  units: [Unit!]!
+}

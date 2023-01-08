@@ -1,0 +1,13 @@
+type Event {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  timestamp: Time!
+  value: String!
+
+  deviceId: ID!
+  device: Device!
+  propertyId: ID!
+  property: Property!
+}

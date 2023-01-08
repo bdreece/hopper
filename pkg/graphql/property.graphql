@@ -1,0 +1,17 @@
+type Property {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  name: String!
+  description: String
+  presentValue: String
+
+  typeId: ID!
+  type: Type!
+  modelId: ID
+  model: DeviceModel
+  deviceId: ID
+  device: Device
+  events: [Event!]!
+}

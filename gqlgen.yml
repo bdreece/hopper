@@ -19,8 +19,10 @@ model:
 
 # Where should the resolver implementations go?
 resolver:
-  filename: pkg/graphql/resolvers/resolver.graphql.go
+  layout: follow-schema
+  dir: pkg/graphql/resolvers/
   package: resolvers
+  filename_template: '{name}Resolver.go'
 
 # Optional: turn on use ` + "`" + `gqlgen:"fieldName"` + "`" + ` tags in your models
 # struct_tag: json
@@ -63,5 +65,8 @@ models:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
+      - github.com/99designs/gqlgen/graphql.Uint
+      - github.com/99designs/gqlgen/graphql.Uint64
+      - github.com/99designs/gqlgen/graphql.Uint32
   Time:
     model: github.com/99designs/gqlgen/graphql.Time
