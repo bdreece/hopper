@@ -36,7 +36,7 @@ type Config struct {
 	Password    string
 	Secret      string
 
-	GraphQLServer      http.Handler
+	GraphQLHandler     http.Handler
 	DeviceService      grpc.DeviceServiceServer
 	DeviceModelService grpc.DeviceModelServiceServer
 	EventService       grpc.EventServiceServer

@@ -76,8 +76,8 @@ func (b ConfigBuilder) AddDatabase(db *gorm.DB) ConfigBuilder {
 	return b
 }
 
-func (b ConfigBuilder) AddGraphQLServer(srv http.Handler) ConfigBuilder {
-	b.config.GraphQLServer = srv
+func (b ConfigBuilder) AddGraphQLHandler(handler http.Handler) ConfigBuilder {
+	b.config.GraphQLHandler = handler
 	return b
 }
 

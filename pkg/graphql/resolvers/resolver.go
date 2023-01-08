@@ -1,5 +1,5 @@
 //go:generate go run github.com/99designs/gqlgen generate
-package graphql
+package resolvers
 
 import (
 	"github.com/bdreece/hopper/pkg/config"
