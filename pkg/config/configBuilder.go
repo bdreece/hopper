@@ -19,6 +19,7 @@
 package config
 
 import (
+	"net/http"
 	"os"
 
 	"github.com/bdreece/hopper/pkg/proto/grpc"
@@ -55,8 +56,13 @@ func (b ConfigBuilder) AddCredentials() ConfigBuilder {
 	return b
 }
 
-func (b ConfigBuilder) AddPort(port string) ConfigBuilder {
-	b.config.Port = port
+func (b ConfigBuilder) AddGrpcPort(port string) ConfigBuilder {
+	b.config.GrpcPort = port
+	return b
+}
+
+func (b ConfigBuilder) AddGraphQLPort(port string) ConfigBuilder {
+	b.config.GraphQLPort = port
 	return b
 }
 
@@ -67,6 +73,11 @@ func (b ConfigBuilder) AddLogger() ConfigBuilder {
 
 func (b ConfigBuilder) AddDatabase(db *gorm.DB) ConfigBuilder {
 	b.config.DB = db
+	return b
+}
+
+func (b ConfigBuilder) AddGraphQLServer(srv http.Handler) ConfigBuilder {
+	b.config.GraphQLServer = srv
 	return b
 }
 

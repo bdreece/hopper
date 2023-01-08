@@ -19,22 +19,25 @@
 package app
 
 import (
+	"context"
 	"errors"
 	"net"
 
 	"github.com/bdreece/hopper/pkg/config"
+	"github.com/bdreece/hopper/pkg/graphql"
 	"github.com/bdreece/hopper/pkg/services"
 	"github.com/bdreece/hopper/pkg/services/utils"
 	"google.golang.org/grpc"
 )
 
 var (
-	ErrAppStartup = errors.New("Failed to start application")
+	ErrAppStartup = errors.New("failed to start application")
 )
 
 type App struct {
+	Logger utils.Logger
+
 	server *grpc.Server
-	logger utils.Logger
 	config *config.Config
 }
 
@@ -50,9 +53,7 @@ func NewApp() (*App, error) {
 
 	db, err := NewDB(cfg)
 	if err != nil {
-		err = utils.WrapError(ErrAppStartup, err)
-		logger.Errorf("An error occurred: %v\n", err)
-		return nil, err
+		return nil, handleError(err, logger)
 	}
 
 	logger.Infoln("Injecting database connection...")
@@ -69,7 +70,9 @@ func NewApp() (*App, error) {
 		AddPropertyService(services.NewPropertyService(cfg)).
 		AddTenantService(services.NewTenantService(cfg)).
 		AddTypeService(services.NewTypeService(cfg)).
-		AddPort(":8080").
+		AddGraphQLServer(graphql.NewGraphQLServer(cfg)).
+		AddGraphQLPort(":8080").
+		AddGrpcPort(":8081").
 		Build()
 
 	logger.Infoln("Creating server...")
@@ -77,21 +80,35 @@ func NewApp() (*App, error) {
 
 	logger.Infoln("Application built!")
 	return &App{
+		Logger: logger,
 		server: srv,
-		logger: logger,
 		config: cfg,
 	}, nil
 }
 
 func (a *App) Serve() error {
-	a.logger.Infof("Listening on port %s\n", a.config.Port)
-	listener, err := net.Listen("tcp", a.config.Port)
+	a.Logger.Infof("gRPC listening on port %s\n", a.config.GrpcPort)
+	a.Logger.Infof("GraphQL listening on port %s\n", a.config.GraphQLPort)
+	listener, err := net.Listen("tcp", a.config.GrpcPort)
 	if err != nil {
-		err = utils.WrapError(ErrAppStartup, err)
-		a.logger.Errorf("An error occurred: %v\n", err)
-		return err
+		return handleError(err, a.Logger)
 	}
 
-	a.logger.Infoln("Starting application...")
+	a.Logger.Infoln("Starting application...")
 	return a.server.Serve(listener)
+}
+
+func (a *App) Shutdown(ctx context.Context, cancel context.CancelFunc) {
+	go func() {
+		a.server.GracefulStop()
+		cancel()
+	}()
+	<-ctx.Done()
+	a.server.Stop()
+}
+
+func handleError(err error, logger utils.Logger) error {
+	err = utils.WrapError(ErrAppStartup, err)
+	logger.Errorf("An error occurred: %v\n", err)
+	return err
 }

@@ -1,3 +1,6 @@
 pkg/proto/**/*.pb.go
+pkg/graphql/**/*.graphql.go
 .env
 .license
+hopper
+__debug_bin

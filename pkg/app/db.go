@@ -19,21 +19,30 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/bdreece/hopper/pkg/config"
+	"github.com/bdreece/hopper/pkg/services/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 const DATABASE = "hopperdb"
 
-func NewDB(cfg *config.Config) (db *gorm.DB, err error) {
+var ErrDatabaseOpen = errors.New("failed to open database")
+
+func NewDB(cfg *config.Config) (*gorm.DB, error) {
 	logger := cfg.Logger.WithContext("db")
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s",
 		cfg.Username, cfg.Password, cfg.Hostname, DATABASE)
 
 	logger.Infoln("Opening database...")
-	db, err = gorm.Open(mysql.Open(dsn))
-	return
+	db, err := gorm.Open(mysql.Open(dsn))
+	if err != nil {
+		err = utils.WrapError(ErrDatabaseOpen, err)
+		return nil, err
+	}
+
+	return db, nil
 }

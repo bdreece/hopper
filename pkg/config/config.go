@@ -19,20 +19,24 @@
 package config
 
 import (
+	"net/http"
+
 	"github.com/bdreece/hopper/pkg/proto/grpc"
 	"github.com/bdreece/hopper/pkg/services/utils"
 	"gorm.io/gorm"
 )
 
 type Config struct {
-	DB       *gorm.DB
-	Logger   utils.Logger
-	Port     string
-	Hostname string
-	Username string
-	Password string
-	Secret   string
+	DB          *gorm.DB
+	Logger      utils.Logger
+	GrpcPort    string
+	GraphQLPort string
+	Hostname    string
+	Username    string
+	Password    string
+	Secret      string
 
+	GraphQLServer      http.Handler
 	DeviceService      grpc.DeviceServiceServer
 	DeviceModelService grpc.DeviceModelServiceServer
 	EventService       grpc.EventServiceServer

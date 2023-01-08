@@ -20,7 +20,7 @@ package app
 
 import (
 	"github.com/bdreece/hopper/pkg/config"
-	. "github.com/bdreece/hopper/pkg/proto/grpc"
+	pb "github.com/bdreece/hopper/pkg/proto/grpc"
 	"google.golang.org/grpc"
 )
 
@@ -29,14 +29,14 @@ func NewServer(cfg *config.Config) *grpc.Server {
 	server := grpc.NewServer()
 
 	logger.Infoln("Registering services...")
-	RegisterDeviceServiceServer(server, cfg.DeviceService)
-	RegisterDeviceModelServiceServer(server, cfg.DeviceModelService)
-	RegisterEventServiceServer(server, cfg.EventService)
-	RegisterFirmwareServiceServer(server, cfg.FirmwareService)
-	RegisterPropertyServiceServer(server, cfg.PropertyService)
-	RegisterTenantServiceServer(server, cfg.TenantService)
-	RegisterTypeServiceServer(server, cfg.TypeService)
-	RegisterUnitServiceServer(server, cfg.UnitService)
+	pb.RegisterDeviceServiceServer(server, cfg.DeviceService)
+	pb.RegisterDeviceModelServiceServer(server, cfg.DeviceModelService)
+	pb.RegisterEventServiceServer(server, cfg.EventService)
+	pb.RegisterFirmwareServiceServer(server, cfg.FirmwareService)
+	pb.RegisterPropertyServiceServer(server, cfg.PropertyService)
+	pb.RegisterTenantServiceServer(server, cfg.TenantService)
+	pb.RegisterTypeServiceServer(server, cfg.TypeService)
+	pb.RegisterUnitServiceServer(server, cfg.UnitService)
 
 	logger.Infoln("Services registered")
 	return server
