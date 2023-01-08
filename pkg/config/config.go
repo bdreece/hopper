@@ -22,7 +22,7 @@ import (
 	"net/http"
 
 	"github.com/bdreece/hopper/pkg/proto/grpc"
-	"github.com/bdreece/hopper/pkg/services/utils"
+	"github.com/bdreece/hopper/pkg/utils"
 	"gorm.io/gorm"
 )
 

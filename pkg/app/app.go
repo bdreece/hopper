@@ -27,7 +27,7 @@ import (
 	"github.com/bdreece/hopper/pkg/config"
 	"github.com/bdreece/hopper/pkg/graphql"
 	"github.com/bdreece/hopper/pkg/services"
-	"github.com/bdreece/hopper/pkg/services/utils"
+	"github.com/bdreece/hopper/pkg/utils"
 	"google.golang.org/grpc"
 )
 

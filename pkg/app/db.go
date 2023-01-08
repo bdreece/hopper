@@ -23,7 +23,7 @@ import (
 	"fmt"
 
 	"github.com/bdreece/hopper/pkg/config"
-	"github.com/bdreece/hopper/pkg/services/utils"
+	"github.com/bdreece/hopper/pkg/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

@@ -3,8 +3,6 @@ package resolvers
 
 import (
 	"github.com/bdreece/hopper/pkg/config"
-	"github.com/bdreece/hopper/pkg/services/utils"
-	"gorm.io/gorm"
 )
 
 // This file will not be regenerated automatically.
@@ -12,13 +10,17 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	db     *gorm.DB
-	logger utils.Logger
+	cfg *config.Config
 }
 
 func NewResolver(cfg *config.Config) *Resolver {
-	return &Resolver{
-		db:     cfg.DB,
-		logger: cfg.Logger,
-	}
+	return &Resolver{cfg}
+}
+
+func (r *Resolver) Devices() DeviceResolver {
+	return NewDeviceResolverService(r.cfg)
+}
+
+func (r *Resolver) DeviceModels() DeviceModelResolver {
+	return NewDeviceModelResolverService(r.cfg)
 }
