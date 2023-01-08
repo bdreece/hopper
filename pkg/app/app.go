@@ -22,6 +22,7 @@ import (
 	"context"
 	"errors"
 	"net"
+	"net/http"
 
 	"github.com/bdreece/hopper/pkg/config"
 	"github.com/bdreece/hopper/pkg/graphql"
@@ -37,8 +38,9 @@ var (
 type App struct {
 	Logger utils.Logger
 
-	server *grpc.Server
-	config *config.Config
+	grpcServer *grpc.Server
+	httpServer *http.Server
+	config     *config.Config
 }
 
 func NewApp() (*App, error) {
@@ -70,41 +72,62 @@ func NewApp() (*App, error) {
 		AddPropertyService(services.NewPropertyService(cfg)).
 		AddTenantService(services.NewTenantService(cfg)).
 		AddTypeService(services.NewTypeService(cfg)).
-		AddGraphQLServer(graphql.NewGraphQLServer(cfg)).
+		AddGraphQLHandler(graphql.NewGraphQLHandler(cfg)).
 		AddGraphQLPort(":8080").
 		AddGrpcPort(":8081").
 		Build()
 
-	logger.Infoln("Creating server...")
-	srv := NewServer(cfg)
-
 	logger.Infoln("Application built!")
 	return &App{
-		Logger: logger,
-		server: srv,
-		config: cfg,
+		Logger:     logger,
+		grpcServer: NewGrpcServer(cfg),
+		httpServer: NewHttpServer(cfg),
+		config:     cfg,
 	}, nil
 }
 
 func (a *App) Serve() error {
-	a.Logger.Infof("gRPC listening on port %s\n", a.config.GrpcPort)
-	a.Logger.Infof("GraphQL listening on port %s\n", a.config.GraphQLPort)
-	listener, err := net.Listen("tcp", a.config.GrpcPort)
-	if err != nil {
-		return handleError(err, a.Logger)
-	}
+	errors := make(chan error, 1)
 
-	a.Logger.Infoln("Starting application...")
-	return a.server.Serve(listener)
+	go func() {
+		logger := a.Logger.WithContext("http")
+		logger.Infof("GraphQL listening on port %s\n", a.config.GraphQLPort)
+
+		if err := a.httpServer.ListenAndServe(); err != nil &&
+			err != http.ErrServerClosed {
+			errors <- handleError(err, logger)
+		}
+	}()
+
+	go func() {
+		logger := a.Logger.WithContext("grpc")
+		listener, err := net.Listen("tcp", a.config.GrpcPort)
+		if err != nil {
+			errors <- handleError(err, logger)
+			return
+		}
+
+		logger.Infof("gRPC listening on port %s\n", a.config.GrpcPort)
+		if err = a.grpcServer.Serve(listener); err != nil &&
+			err != grpc.ErrServerStopped {
+			errors <- handleError(err, logger)
+		}
+	}()
+
+	a.Logger.Infoln("Application started!")
+	return <-errors
 }
 
 func (a *App) Shutdown(ctx context.Context, cancel context.CancelFunc) {
 	go func() {
-		a.server.GracefulStop()
+		a.httpServer.Shutdown(ctx)
+		a.grpcServer.GracefulStop()
 		cancel()
 	}()
+
 	<-ctx.Done()
-	a.server.Stop()
+	a.grpcServer.Stop()
+	a.httpServer.Close()
 }
 
 func handleError(err error, logger utils.Logger) error {

@@ -24,7 +24,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func NewServer(cfg *config.Config) *grpc.Server {
+func NewGrpcServer(cfg *config.Config) *grpc.Server {
 	logger := cfg.Logger.WithContext("server")
 	server := grpc.NewServer()
 
