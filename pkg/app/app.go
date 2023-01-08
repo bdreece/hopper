@@ -91,9 +91,14 @@ func (a *App) Serve() error {
 
 	go func() {
 		logger := a.Logger.WithContext("http")
-		logger.Infof("GraphQL listening on port %s\n", a.config.GraphQLPort)
+		listener, err := net.Listen("tcp", a.config.GraphQLPort)
+		if err != nil {
+			errors <- err
+			return
+		}
 
-		if err := a.httpServer.ListenAndServe(); err != nil &&
+		logger.Infof("GraphQL over HTTP listening on port %s\n", a.config.GraphQLPort)
+		if err = a.httpServer.Serve(listener); err != nil &&
 			err != http.ErrServerClosed {
 			errors <- handleError(err, logger)
 		}
