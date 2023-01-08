@@ -32,8 +32,8 @@ import (
 )
 
 var (
-	ErrUnitNotFound = errors.New("Unit not found")
-	ErrUnitQuery    = errors.New("Failed to query units")
+	ErrUnitNotFound = errors.New("unit not found")
+	ErrUnitQuery    = errors.New("failed to query units")
 )
 
 type UnitService struct {
@@ -123,8 +123,14 @@ func (s *UnitService) GetUnits(ctx context.Context, in *proto.GetUnitsRequest) (
 			iter.FromSlice(&units),
 			func(in *models.Unit) *proto.Unit {
 				return &in.Unit
-			})),
+			},
+		)),
 	}, nil
+}
+
+func (s *UnitService) handleError(err error) error {
+	s.logger.Errorf("An error has occurred: %v\n", err)
+	return err
 }
 
 func (s *UnitService) handleQueryError(err error) error {
@@ -132,6 +138,5 @@ func (s *UnitService) handleQueryError(err error) error {
 		err = utils.WrapError(ErrUnitNotFound, err)
 	}
 	err = utils.WrapError(ErrUnitQuery, err)
-	s.logger.Errorf("An error has occurred: %v\n", err)
-	return err
+	return s.handleError(err)
 }

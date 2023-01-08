@@ -21,5 +21,5 @@ package utils
 import "fmt"
 
 func WrapError(outer, inner error) error {
-	return fmt.Errorf("%s:\n%w", outer.Error(), inner)
+	return fmt.Errorf("%s:\n\t%w", outer.Error(), inner)
 }

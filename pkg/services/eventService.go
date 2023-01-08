@@ -32,10 +32,10 @@ import (
 )
 
 var (
-	ErrCreateEvent     = errors.New("Failed creating event")
-	ErrEventNotFound   = errors.New("Event not found")
-	ErrEventQuery      = errors.New("Failed to query event")
-	ErrMissingDeviceId = errors.New("Missing device ID")
+	ErrCreateEvent     = errors.New("failed creating event")
+	ErrEventNotFound   = errors.New("event not found")
+	ErrEventQuery      = errors.New("failed to query event")
+	ErrMissingDeviceId = errors.New("missing device ID")
 )
 
 type EventService struct {
@@ -140,7 +140,7 @@ func (s *EventService) GetEvents(ctx context.Context, in *proto.GetEventsRequest
 }
 
 func (s *EventService) handleError(err error) error {
-	s.logger.Errorf("An error occurred: %v", err)
+	s.logger.Errorf("An error occurred: %v\n", err)
 	return err
 }
 

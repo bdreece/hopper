@@ -31,8 +31,8 @@ import (
 )
 
 var (
-	ErrTenantNotFound = errors.New("Tenant not found")
-	ErrTenantQuery    = errors.New("Failed to query tenants")
+	ErrTenantNotFound = errors.New("tenant not found")
+	ErrTenantQuery    = errors.New("failed to query tenants")
 )
 
 type TenantService struct {

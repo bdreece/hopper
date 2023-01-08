@@ -32,9 +32,9 @@ const (
 )
 
 var (
-	ErrBadSigningMethod = errors.New("Bad signing method")
-	ErrInvalidApiKey    = errors.New("Invalid API key")
-	ErrInvalidToken     = errors.New("Invalid token")
+	ErrBadSigningMethod = errors.New("bad signing method")
+	ErrInvalidApiKey    = errors.New("invalid API key")
+	ErrInvalidToken     = errors.New("invalid token")
 )
 
 func CreateToken(sub, aud, secret string) (*string, *time.Time, error) {
@@ -67,6 +67,10 @@ func DecodeToken(token, secret string) (sub, aud, iss *string, err error) {
 		return secret, nil
 	})
 
+	if err != nil {
+		return nil, nil, nil, WrapError(ErrInvalidToken, err)
+	}
+
 	claims, ok := t.Claims.(jwt.RegisteredClaims)
 	if !ok || !t.Valid {
 		return nil, nil, nil, ErrInvalidToken
@@ -88,7 +92,7 @@ func DecodeApiKey(apiKey, secret string) (id, tenantId *uint64, err error) {
 
 	claims, ok := token.Claims.(jwt.RegisteredClaims)
 	if !ok || !token.Valid {
-		err = errors.New("Invalid API key")
+		err = ErrInvalidApiKey
 		return
 	}
 

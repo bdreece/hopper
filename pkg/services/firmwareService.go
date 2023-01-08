@@ -31,8 +31,8 @@ import (
 )
 
 var (
-	ErrFirmwareNotFound = errors.New("Firmware not found")
-	ErrFirmwareQuery    = errors.New("Failed to query firmwares")
+	ErrFirmwareNotFound = errors.New("firmware not found")
+	ErrFirmwareQuery    = errors.New("failed to query firmwares")
 )
 
 type FirmwareService struct {
@@ -77,7 +77,7 @@ func (s *FirmwareService) GetFirmware(ctx context.Context, in *proto.GetFirmware
 		}
 
 		logger.Infoln("...with version")
-		query = query.Where("versionMajor = ? AND versionMinor = ? AND versionPatch = ?",
+		query = query.Where("versionMajor = ? and versionMinor = ? and versionPatch = ?",
 			t.Version.VersionMajor, t.Version.VersionMinor, t.Version.VersionPatch)
 	}
 
@@ -92,7 +92,7 @@ func (s *FirmwareService) GetFirmware(ctx context.Context, in *proto.GetFirmware
 }
 
 func (s *FirmwareService) handleError(err error) error {
-	s.logger.Errorf("An error occurred: %v", err)
+	s.logger.Errorf("An error occurred: %v\n", err)
 	return err
 }
 

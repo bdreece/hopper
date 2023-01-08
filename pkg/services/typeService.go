@@ -32,8 +32,8 @@ import (
 )
 
 var (
-	ErrTypeNotFound = errors.New("Type not found")
-	ErrTypeQuery    = errors.New("Failed to query types")
+	ErrTypeNotFound = errors.New("type not found")
+	ErrTypeQuery    = errors.New("failed to query types")
 )
 
 type TypeService struct {
@@ -111,11 +111,15 @@ func (s *TypeService) GetTypes(ctx context.Context, in *proto.GetTypesRequest) (
 	}, nil
 }
 
+func (s *TypeService) handleError(err error) error {
+	s.logger.Errorf("An error has occurred: %v\n", err)
+	return err
+}
+
 func (s *TypeService) handleQueryError(err error) error {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		err = utils.WrapError(ErrTypeNotFound, err)
 	}
 	err = utils.WrapError(ErrTypeQuery, err)
-	s.logger.Errorf("An error has occurred: %v\n", err)
-	return err
+	return s.handleError(err)
 }

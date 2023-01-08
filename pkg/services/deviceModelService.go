@@ -32,8 +32,8 @@ import (
 )
 
 var (
-	ErrDeviceModelNotFound = errors.New("Device model not found")
-	ErrDeviceModelQuery    = errors.New("Failed to query device model")
+	ErrDeviceModelNotFound = errors.New("device model not found")
+	ErrDeviceModelQuery    = errors.New("failed to query device model")
 )
 
 type DeviceModelService struct {

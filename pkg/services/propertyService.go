@@ -33,8 +33,8 @@ import (
 )
 
 var (
-	ErrPropertyNotFound = errors.New("Property not found")
-	ErrPropertyQuery    = errors.New("Failed to query properties")
+	ErrPropertyNotFound = errors.New("property not found")
+	ErrPropertyQuery    = errors.New("failed to query properties")
 )
 
 type PropertyService struct {
@@ -186,6 +186,6 @@ func (s *PropertyService) handleQueryError(err error) error {
 		err = utils.WrapError(ErrPropertyNotFound, err)
 	}
 	err = utils.WrapError(ErrPropertyQuery, err)
-	s.logger.Errorf("An error occurred: %v", err)
+	s.logger.Errorf("An error occurred: %v\n", err)
 	return err
 }

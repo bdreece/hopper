@@ -34,10 +34,10 @@ import (
 )
 
 var (
-	ErrCreateToken    = errors.New("Failed to create access token")
-	ErrDeviceNotFound = errors.New("Device not found")
-	ErrDeviceQuery    = errors.New("Failed to query device")
-	ErrDecodeApiKey   = errors.New("Failed to decode API key")
+	ErrCreateToken    = errors.New("failed to create access token")
+	ErrDeviceNotFound = errors.New("device not found")
+	ErrDeviceQuery    = errors.New("failed to query device")
+	ErrDecodeApiKey   = errors.New("failed to decode API key")
 )
 
 type DeviceService struct {
@@ -170,7 +170,7 @@ func (s *DeviceService) DeleteDevice(ctx context.Context, in *proto.DeleteDevice
 }
 
 func (s *DeviceService) handleError(err error) error {
-	s.logger.Errorf("An error occurred: %v", err)
+	s.logger.Errorf("An error occurred: %v\n", err)
 	return err
 }
 

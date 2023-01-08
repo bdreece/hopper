@@ -21,7 +21,7 @@ package iter
 import "errors"
 
 var (
-	ErrIndexOutOfBounds = errors.New("Index out of bounds")
+	ErrIndexOutOfBounds = errors.New("index out of bounds")
 )
 
 type ListIterator[T any] struct {
