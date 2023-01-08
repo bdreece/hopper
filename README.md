@@ -9,4 +9,4 @@
 [![MySQL](https://img.shields.io/badge/-MySQL-4479A1?logo=mysql&logoColor=white&style=for-the-badge)](https://www.mysql.com/)
 [![Docker](https://img.shields.io/badge/-Docker-2496ED?logo=docker&logoColor=white&style=for-the-badge)](https://www.docker.com/)
 
-A gRPC microservice for collecting IoT device event messages
+A gRPC and GraphQL service for collecting and querying IoT device event messages
