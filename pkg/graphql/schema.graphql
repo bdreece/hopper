@@ -1,0 +1,129 @@
+scalar Time
+
+type Device {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  name: String!
+  description: String
+
+  tenantId: ID!
+  tenant: Tenant!
+  firmwareId: ID!
+  firmware: Firmware!
+  modelId: ID!
+  model: DeviceModel!
+  properties: [Property!]!
+  events: [Event!]!
+}
+
+type DeviceModel {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  name: String!
+  description: String
+
+  tenantId: ID!
+  tenant: Tenant!
+  properties: [Property!]!
+  firmwares: [Firmware!]!
+  devices: [Device!]!
+}
+
+type Event {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  timestamp: Time!
+  value: String!
+
+  deviceId: ID!
+  device: Device!
+  propertyId: ID!
+  property: Property!
+}
+
+type Firmware {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  versionMajor: String!
+  versionMinor: String!
+  versionPatch: String!
+  url: String!
+
+  modelId: ID!
+  model: DeviceModel!
+  devices: [Device!]!
+}
+
+type Property {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  name: String!
+  description: String
+  presentValue: String
+
+  typeId: ID!
+  type: Type!
+  modelId: ID
+  model: DeviceModel
+  deviceId: ID
+  device: Device
+  events: [Event!]!
+}
+
+type Tenant {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  name: String!
+  description: String
+
+  devices: [Device!]!
+}
+
+type Type {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  name: String!
+  description: String
+  data_type: String!
+
+  unitId: ID!
+  unit: Unit!
+  properties: [Property!]!
+}
+
+type Unit {
+  id: ID!
+  createdAt: Time!
+  updatedAt: Time!
+  uuid: String!
+  name: String!
+  description: String
+  symbol: String!
+
+  types: [Type!]!
+}
+
+type Query {
+  devices: [Device!]!
+  deviceModels: [DeviceModel!]!
+  events: [Event!]!
+  firmwares: [Firmware!]!
+  properties: [Property!]!
+  tenants: [Tenant!]!
+  types: [Type!]!
+  units: [Unit!]!
+}
