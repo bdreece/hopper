@@ -3,7 +3,7 @@ package utils_test
 import (
 	"testing"
 
-	"github.com/bdreece/hopper/pkg/services/utils"
+	"github.com/bdreece/hopper/pkg/utils"
 )
 
 func TestToken1(t *testing.T) {

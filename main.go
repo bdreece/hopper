@@ -16,6 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+//go:generate $PROJECT_ROOT/pkg/tools/generate.sh
+//go:generate go run github.com/99designs/gqlgen generate
 package main
 
 import (
