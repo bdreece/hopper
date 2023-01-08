@@ -8,16 +8,16 @@ ENV HOPPER_PASSWORD="password123"
 ENV HOPPER_SECRET="mysecret12345"
 ENV PROJECT_ROOT="/usr/src/hopper"
 
-RUN apk --no-cache --update add protobuf protobuf-dev
+RUN apk --no-cache --update add gcc libc-dev git protobuf protobuf-dev
 RUN go install github.com/golang/protobuf/protoc-gen-go@latest && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 COPY go.mod go.sum ./
-RUN go mod download && \
+RUN go mod download -x && \
     go mod verify
 
 COPY . .
-RUN go generate ./... && \
-    go build -v -o /usr/local/bin ./...
+RUN go generate -v -x ./...
+RUN go build -v -o /usr/local/bin ./...
 
 CMD [ "hopper" ]
