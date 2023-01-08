@@ -3,7 +3,7 @@ package iter_test
 import (
 	"testing"
 
-	"github.com/bdreece/hopper/pkg/services/utils/iter"
+	"github.com/bdreece/hopper/pkg/utils/iter"
 )
 
 func TestListIterator1(t *testing.T) {

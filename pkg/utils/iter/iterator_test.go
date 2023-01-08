@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/bdreece/hopper/pkg/services/utils/iter"
+	"github.com/bdreece/hopper/pkg/utils/iter"
 )
 
 func TestMap1(t *testing.T) {

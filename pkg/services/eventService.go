@@ -26,8 +26,9 @@ import (
 	"github.com/bdreece/hopper/pkg/models"
 	"github.com/bdreece/hopper/pkg/proto"
 	"github.com/bdreece/hopper/pkg/proto/grpc"
-	"github.com/bdreece/hopper/pkg/services/utils"
-	"github.com/bdreece/hopper/pkg/services/utils/iter"
+	"github.com/bdreece/hopper/pkg/utils"
+	"github.com/bdreece/hopper/pkg/utils/iter"
+
 	"gorm.io/gorm"
 )
 
